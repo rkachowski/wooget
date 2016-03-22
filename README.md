@@ -1,14 +1,13 @@
-# wooget [![[version]](https://badge.fury.io/rb/wooget.svg)](http://badge.fury.io/rb/wooget)  [![[travis]](https://travis-ci.org/rkachowski/wooget.png)](https://travis-ci.org/rkachowski/wooget)
+# wooget 
 
-TODO
-
+Wooget 2.0 - a cli to manage all sdk package tasks + bonus content.
 
 ## Setup
 
-Add to your `Gemfile`:
 
 ```ruby
-gem 'wooget'
+gem sources -a http://gem.sdk.wooga.com/
+gem install wooga_wooget
 ```
 
 
@@ -16,8 +15,3 @@ gem 'wooget'
 
 ```ruby
 ```
-
-
-## MIT License
-
-Copyright (C) 2016 Donald Hutchison <toastymofo.net>. Released under the MIT license.
