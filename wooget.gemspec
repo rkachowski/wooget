@@ -16,5 +16,13 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
+  gem.add_runtime_dependency "thor", "~> 0.19"
+  gem.add_runtime_dependency "curb", "~> 0.8"
+  gem.add_development_dependency "pry-byebug"
+  gem.add_development_dependency "rake"
+
+
+  gem.metadata['allowed_push_host'] = 'http://gem.sdk.wooga.com'
+
   gem.required_ruby_version = "~> 2.0"
 end
