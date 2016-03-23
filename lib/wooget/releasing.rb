@@ -7,11 +7,15 @@ module Wooget
 
     set_prerelease_dependencies
 
-    #check untracked files
-    #build.sh setup prerelease
-    #paket update
-    #paket install
-    #build.sh prerelease
+    pack_options = get_build_options
+    version = pack_options[:version]
+    Paket.pack pack_options
+    abort "Prerelease error: paket pack fail" unless $?.exitstatus == 0
+
+     Paket.push get_push_options
+    abort "Prerelease error: paket push fail" unless $?.exitstatus == 0
+
+    File.basename(Dir.getwd)+"."+version
   end
 
   def self.release
@@ -22,11 +26,16 @@ module Wooget
 
     #update
 
-    Paket.pack get_build_options
+    pack_options = get_build_options
+    version = pack_options[:version]
+    Paket.pack pack_options
     abort "Release error: paket pack fail" unless $?.exitstatus == 0
+
 
     Paket.push get_push_options
     abort "Release error: paket push fail" unless $?.exitstatus == 0
+
+    File.basename(Dir.getwd)+"."+version
   end
 
   private

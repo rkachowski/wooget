@@ -25,14 +25,16 @@ module Wooget
     def release
       load_config
 
-      Wooget.release
+      version = Wooget.release
+      puts "#{version} released successfully"
     end
 
     desc "prerelease", "prerelease package"
     def prerelease
       load_config
 
-      Wooget.prerelease
+      version = Wooget.prerelease
+      puts "#{version} released successfully"
     end
 
     desc "paket ARGS", "call bundled version of paket and pass args"
