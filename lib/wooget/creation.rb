@@ -22,6 +22,7 @@ module Wooget
       File.open(File.join(package_name,filename), "w") { |f| f << content }
     end
 
-    Dir.mkdir(File.join(package_name,"src"))
+    ["src","tests"].each {|dir| Dir.mkdir(File.join(package_name,dir)) }
+
   end
 end

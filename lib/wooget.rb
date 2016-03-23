@@ -12,8 +12,14 @@ require 'logger'
 
 module Wooget
   @@log = Logger.new(STDOUT)
+  @@credentials = {username: "", password: ""}
+
   def self.log
     @@log
+  end
+
+  def self.credentials
+    @@credentials
   end
 end
 
