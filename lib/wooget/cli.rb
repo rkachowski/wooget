@@ -22,6 +22,13 @@ module Wooget
       Wooget::Paket.unity3d_execute(args.join(" "))
     end
 
+    desc "setup", "setup environment for wooget usage"
+    def setup
+      load_config
+      puts "Config OK"
+
+
+    end
 
     private
     def load_config
@@ -33,7 +40,7 @@ module Wooget
         FileUtils.cp(default_config,config_location)
       end
 
-      Wooget.credentials = JSON.parse(File.read(config_location))
+      Wooget.credentials = JSON.parse(File.read(config_location), symbolize_names: true)
       Wooget.log.debug "Acting as #{Wooget.credentials[:username]}"
     end
   end

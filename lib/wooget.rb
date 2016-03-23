@@ -21,5 +21,9 @@ module Wooget
   def self.credentials
     @@credentials
   end
+
+  def self.credentials=(value={})
+    @@credentials = value
+  end
 end
 
