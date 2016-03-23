@@ -21,6 +21,20 @@ module Wooget
       Wooget.create package_name, options
     end
 
+    desc "release", "release package"
+    def release
+      load_config
+
+      Wooget.release
+    end
+
+    desc "prerelease", "prerelease package"
+    def prerelease
+      load_config
+
+      Wooget.prerelease
+    end
+
     desc "paket ARGS", "call bundled version of paket and pass args"
     def paket *args
       Wooget::Paket.execute(args.join(" "))

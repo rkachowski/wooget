@@ -1,11 +1,17 @@
 module Wooget
   class Paket
     def self.execute args
-      exec "mono #{path} #{args}"
+      cmd = "mono #{path} #{args}"
+      Wooget.log.debug "Running #{cmd}"
+
+      exec cmd
     end
 
     def self.unity3d_execute args
-      exec "mono #{unity3d_path} #{args}"
+      cmd = "mono #{unity3d_path} #{args}"
+      Wooget.log.debug "Running #{cmd}"
+
+      exec cmd
     end
 
     def self.path

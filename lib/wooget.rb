@@ -13,7 +13,7 @@ require 'logger'
 module Wooget
   @@log = Logger.new(STDOUT)
   @@log.level = Logger::Severity::ERROR
-  
+
   @@credentials = {username: "", password: ""}
 
   def self.log
