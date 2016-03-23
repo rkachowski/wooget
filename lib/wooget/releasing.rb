@@ -1,5 +1,3 @@
-require 'pry-byebug'
-
 module Wooget
   def self.prerelease
     fail_msg = check_prerelease_preconditions

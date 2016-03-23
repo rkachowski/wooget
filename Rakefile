@@ -13,6 +13,11 @@ info = "#{gemspec.name} | #{gemspec.version} | " \
 
 desc info
 task :gem do
+  %w(pry-byebug binding.pry).each do |dbg|
+    files = `ack -ir #{dbg} lib`
+    abort "debuggin statements left in! - #{files}" if $?.exitstatus == 0
+  end
+
   puts info + "\n\n"
   print "  "; sh "gem build #{gemspec_file}"
   FileUtils.mkdir_p 'pkg'
