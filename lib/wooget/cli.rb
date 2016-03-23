@@ -5,6 +5,15 @@ require 'json'
 module Wooget
   class CLI < Thor
     include Thor::Actions
+    class_option :verbose, :desc => "Log level", :aliases => "-v", :type => :boolean
+
+    def initialize *args
+      super
+
+      if self.options[:verbose]
+        Wooget.log.level = Logger::Severity::DEBUG
+      end
+    end
 
     desc "create PACKAGE_NAME", "create a new package"
     option :author, desc: "name to use for author field of nupkg"
@@ -24,10 +33,10 @@ module Wooget
 
     desc "setup", "setup environment for wooget usage"
     def setup
+      assert_dependencies
+      puts "Dependencies OK"
       load_config
       puts "Config OK"
-
-
     end
 
     private
@@ -42,6 +51,13 @@ module Wooget
 
       Wooget.credentials = JSON.parse(File.read(config_location), symbolize_names: true)
       Wooget.log.debug "Acting as #{Wooget.credentials[:username]}"
+    end
+
+    def assert_dependencies
+      %w( mono ).each do |dep|
+        `which #{dep}`
+        raise "Couldn't find #{dep} - please install!" unless $?.exitstatus == 0
+      end
     end
   end
 end
