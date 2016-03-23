@@ -6,6 +6,7 @@ module Wooget
     abort "Release error: #{fail_msg}" if fail_msg
 
     set_prerelease_dependencies
+
     #check untracked files
     #build.sh setup prerelease
     #paket update
@@ -14,28 +15,42 @@ module Wooget
   end
 
   def self.release
-    #check preconditions
-      #package in this directory (including release notes)
-      #release notes don't reference prerelease
     fail_msg = check_release_preconditions
     abort "Release error: #{fail_msg}" if fail_msg
 
-
-    #setup release
-    #  change dependencies to be release
-    #  change template to be release
-    #  paket update
     set_release_dependencies
 
     #update
 
-    #do release
-    #  pack
-    #  push to repo
+    Paket.pack get_build_options
+    abort "Release error: paket pack fail" unless $?.exitstatus == 0
 
+    Paket.push get_push_options
+    abort "Release error: paket push fail" unless $?.exitstatus == 0
   end
 
   private
+
+  def self.get_build_options
+
+    version, prerelease = get_version_from_release_notes
+    version = version+"-"+prerelease unless prerelease.empty?
+
+    {
+        :output => "bin",
+        :template => "paket.template",
+        :version => version,
+        :release_notes => get_latest_release_notes
+    }
+  end
+
+  def self.get_push_options
+    {
+        :auth => "#{Wooget.credentials[:username]}:#{Wooget.credentials[:password]}",
+        :url => Wooget.credentials[:repo],
+        :package => Dir['bin/*.nupkg'].max { |f| File.ctime(f) }
+    }
+  end
 
   def self.set_release_dependencies
     #remove prerelease references from dependencies and template
@@ -117,6 +132,18 @@ module Wooget
     regex = /#*\s*(\d+\.\d+\.\d+)-?(\w*)/
     notes = File.open("RELEASE_NOTES.md").read
     notes.scan(regex).first
+  end
+
+  def self.get_latest_release_notes
+    notes = []
+    File.open("RELEASE_NOTES.md").each do |line|
+      break if line.empty? and notes.length > 0
+
+      #include the line unless it's a version title
+      notes << line unless line.match /#*\s*(\d+\.\d+\.\d+)-?(\w*)/
+    end
+
+    notes.join
   end
 
   def self.valid_package_dir
