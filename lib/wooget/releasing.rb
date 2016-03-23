@@ -45,7 +45,7 @@ module Wooget
         release_dependencies << line.sub(/\s*[>=]{1}\s*.*(prerelease)|prerelease/,"")
       end
 
-      Wooget.log.debug "Writing out #{release_dependencies} to #{file}"
+      Wooget.log.debug "Writing out #{release_dependencies.join} to #{file}"
 
       File.open(file,"w"){|f| f << release_dependencies.join }
     end
@@ -55,14 +55,14 @@ module Wooget
     #add prerelease to dependencies
     paket_dependencies = []
     File.open("paket.dependencies").each do |line|
-      if line.match(/^\s*nuget ([\w\.]+)\s*$/)
-        paket_dependencies << line.chomp + " prerelease"
+      if line.match(/^\s*nuget\s+([\w\.]+)\s*$/)
+        paket_dependencies << line.chomp + " prerelease\n"
       else
         paket_dependencies << line
       end
     end
 
-    Wooget.log.debug "Writing out #{paket_dependencies} to paket.dependencies"
+    Wooget.log.debug "Writing out #{paket_dependencies.join} to paket.dependencies"
 
     File.open("paket.dependencies","w"){|f| f << paket_dependencies.join }
 
@@ -94,7 +94,7 @@ module Wooget
       paket_template << line
     end
 
-    Wooget.log.debug "Writing out #{paket_template} to paket.template"
+    Wooget.log.debug "Writing out #{paket_template.join} to paket.template"
 
     File.open("paket.template","w"){|f| f << paket_template.join }
   end

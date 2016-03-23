@@ -5,8 +5,8 @@ require File.dirname(__FILE__) + "/lib/wooget/version"
 Gem::Specification.new do |gem|
   gem.name          = "wooga_wooget"
   gem.version       = Wooget::VERSION
-  gem.summary       = "A cli to control all unity/paket package management tasks"
-  gem.description   = "Update, install, fetch, list, create, release, prerelease, validate and push paket/unity packages."
+  gem.summary       = "A cli to control all unity/paket package management tasks at wooga"
+  gem.description   = "Update, install, fetch, list, create, release, prerelease, validate and push wooga's paket/unity packages."
   gem.authors       = ["Donald Hutchison"]
   gem.email         = ["donald.hutchison@wooga.net"]
   gem.homepage      = "https://github.com/wooga/wooget"
