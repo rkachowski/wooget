@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{<%= options[:guid]%>}") = "<%= options[:src][:name]%>", "<%= options[:src][:name]%>.csproj", "{<%= options[:src][:guid]%>}"
+EndProject
+<% if options[:tests] -%>
+Project("{<%= options[:guid]%>}") = "<%= options[:tests][:name]%>Tests", "..\..\tests\<%= options[:tests][:name]%>Tests.csproj", "{<%= options[:tests][:guid]%>}"
+    EndProjectTests\<%= options[:tests][:name]%>Tests.csproj", "{<%= options[:tests][:guid]%>}"
+EndProject
+<% end -%>
+Global
+  GlobalSection(SolutionConfigurationPlatforms) = preSolution
+    Debug|Any CPU = Debug|Any CPU
+    Release|Any CPU = Release|Any CPU
+  EndGlobalSection
+  GlobalSection(ProjectConfigurationPlatforms) = postSolution
+    {<%= options[:src][:guid]%>}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+    {<%= options[:src][:guid]%>}.Debug|Any CPU.Build.0 = Debug|Any CPU
+    {<%= options[:src][:guid]%>}.Release|Any CPU.ActiveCfg = Release|Any CPU
+    {<%= options[:src][:guid]%>}.Release|Any CPU.Build.0 = Release|Any CPU
+<% if options[:tests] -%>
+    {<%= options[:tests][:guid]%>}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+    {<%= options[:tests][:guid]%>}.Debug|Any CPU.Build.0 = Debug|Any CPU
+    {<%= options[:tests][:guid]%>}.Release|Any CPU.ActiveCfg = Release|Any CPU
+    {<%= options[:tests][:guid]%>}.Release|Any CPU.Build.0 = Release|Any CPU
+<% end -%>
+  EndGlobalSection
+  GlobalSection(SolutionProperties) = preSolution
+    HideSolutionNode = FALSE
+  EndGlobalSection
+EndGlobal

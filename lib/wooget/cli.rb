@@ -1,18 +1,17 @@
 require 'thor'
 require 'fileutils'
 require 'json'
-
+require 'pry-byebug'
 module Wooget
   class CLI < Thor
     include Thor::Actions
     class_option :verbose, :desc => "Log level", :aliases => "-v", :type => :boolean
-
+    class_option :repo, :desc => "Repository to use", :default => "legacy"
     def initialize *args
       super
 
-      if self.options[:verbose]
-        Wooget.log.level = Logger::Severity::DEBUG
-      end
+      Wooget.log.level = Logger::Severity::DEBUG if self.options[:verbose]
+      Wooget.repos[:default] = self.options[:repo] if self.options[:repo]
     end
 
     desc "create PACKAGE_NAME", "create a new package"
@@ -55,6 +54,14 @@ module Wooget
       puts "Config OK"
     end
 
+    desc "bananas", "whjat"
+    def test_cmd
+      temp = Wooget::Templates::VisualStudio.new()
+      temp.create_project({:name=> "delete.me", :src =>{:blah => "Test.Project"}})
+
+
+    end
+
     private
     def load_config
       config_location = File.expand_path(File.join("~",".wooget"))
@@ -65,7 +72,11 @@ module Wooget
         FileUtils.cp(default_config,config_location)
       end
 
-      Wooget.credentials = JSON.parse(File.read(config_location), symbolize_names: true)
+      config = JSON.parse(File.read(config_location), symbolize_names: true)
+
+      Wooget.credentials.merge! config[:credentials]
+      Wooget.repos.merge! config[:repos]
+
       Wooget.log.debug "Acting as #{Wooget.credentials[:username]}"
     end
 

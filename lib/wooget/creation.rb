@@ -15,7 +15,9 @@ module Wooget
         "paket.template" => template_file,
         "paket.dependencies" => Wooget::Templates.paket_dependencies,
         "paket.lock" => "",
-        "RELEASE_NOTES.md" => Wooget::Templates.release_notes
+        ".gitignore" => Wooget::Templates.gitignore,
+        "RELEASE_NOTES.md" => Wooget::Templates.release_notes,
+        "README.md" => Wooget::Templates.readme(name: package_name, author: options[:author])
     }
 
     package_files.each do |filename, content|

@@ -5,6 +5,10 @@ require_relative "wooget/creation"
 require_relative "wooget/paket"
 require_relative "wooget/util/misc"
 require_relative "wooget/template/paket"
+require_relative "wooget/template/misc"
+require_relative "wooget/template/visual_studio"
+
+
 
 # Gem.find_files("wooget/**/*.rb").each { |path| require path }
 
@@ -15,6 +19,7 @@ module Wooget
   @@log.level = Logger::Severity::ERROR
 
   @@credentials = {username: "", password: ""}
+  @@repos = {:default => "legacy"}
 
   def self.log
     @@log
@@ -24,8 +29,13 @@ module Wooget
     @@credentials
   end
 
-  def self.credentials=(value={})
-    @@credentials = value
+  def self.repos
+    @@repos
+  end
+
+  #default repositiory to use
+  def self.repo
+    @@repos[:default]
   end
 end
 
