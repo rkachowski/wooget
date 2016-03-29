@@ -1,0 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using ClassLibrary;
+using NUnit.Framework;
+
+namespace ClassLibraryTests
+{
+    [TestFixture]
+    public class Class1Tests
+    {
+        [Test]
+        public void TheTest()
+        {
+            Assert.True(Class1.TheFunction(), "The function should return true");
+        }
+    }
+}

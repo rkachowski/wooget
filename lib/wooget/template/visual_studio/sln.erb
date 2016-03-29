@@ -5,7 +5,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{<%= options[:guid]%>}") = "<%= options[:src][:name]%>", "<%= options[:src][:name]%>.csproj", "{<%= options[:src][:guid]%>}"
 EndProject
 <% if options[:tests] -%>
-Project("{<%= options[:guid]%>}") = "<%= options[:tests][:name]%>Tests", "..\..\tests\<%= options[:tests][:name]%>Tests.csproj", "{<%= options[:tests][:guid]%>}"
+Project("{<%= options[:guid]%>}") = "<%= options[:tests][:name]%>Tests", "..\tests\<%= options[:tests][:name]%>Tests.csproj", "{<%= options[:tests][:guid]%>}"
     EndProjectTests\<%= options[:tests][:name]%>Tests.csproj", "{<%= options[:tests][:guid]%>}"
 EndProject
 <% end -%>

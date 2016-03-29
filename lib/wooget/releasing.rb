@@ -1,5 +1,5 @@
 module Wooget
-  def self.prerelease
+  def self.prerelease options={}
     fail_msg = check_prerelease_preconditions
     abort "Release error: #{fail_msg}" if fail_msg
 
@@ -10,8 +10,10 @@ module Wooget
     Paket.pack pack_options
     abort "Prerelease error: paket pack fail" unless $?.exitstatus == 0
 
-     Paket.push get_push_options
-    abort "Prerelease error: paket push fail" unless $?.exitstatus == 0
+    unless options[:no_push]
+      Paket.push get_push_options
+      abort "Prerelease error: paket push fail" unless $?.exitstatus == 0
+    end
 
     File.basename(Dir.getwd)+"."+version
   end

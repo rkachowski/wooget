@@ -26,5 +26,8 @@ module Wooget
 
     ["src","tests"].each {|dir| Dir.mkdir(File.join(package_name,dir)) }
 
+    temp = Wooget::Templates::VisualStudio.new()
+    destination = File.expand_path("./#{package_name}")
+    temp.create_project({:destination => destination, :name=> package_name, :src =>{}})
   end
 end

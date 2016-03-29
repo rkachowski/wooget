@@ -34,8 +34,9 @@ describe Wooget do
         lines.unshift "### 99.99.99-prerelease "
         File.open(File.join("Prerelease.Package", "RELEASE_NOTES.md"),"w"){|f| f << lines.join }
 
+
         Dir.chdir("Prerelease.Package") do
-          Wooget.prerelease
+          Wooget.prerelease :no_push => true
         end
 
         template_contents = File.open(File.join("Prerelease.Package", "paket.template")).read

@@ -27,9 +27,10 @@ HERE
 
     def self.gitignore
 <<HERE
-*bin
-*obj
-*.vs
+bin/
+obj/
+.vs/
+Debug/
 *AssemblyInfo.cs
 packages
 HERE

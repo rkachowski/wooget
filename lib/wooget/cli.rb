@@ -54,14 +54,6 @@ module Wooget
       puts "Config OK"
     end
 
-    desc "bananas", "whjat"
-    def test_cmd
-      temp = Wooget::Templates::VisualStudio.new()
-      temp.create_project({:name=> "delete.me", :src =>{:blah => "Test.Project"}})
-
-
-    end
-
     private
     def load_config
       config_location = File.expand_path(File.join("~",".wooget"))
