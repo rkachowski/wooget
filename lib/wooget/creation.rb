@@ -28,6 +28,6 @@ module Wooget
 
     temp = Wooget::Templates::VisualStudio.new()
     destination = File.expand_path("./#{package_name}")
-    temp.create_project({:destination => destination, :name=> package_name, :src =>{}})
+    temp.create_project({:destination => destination, :name=> package_name, :src =>{}, :tests => {}})
   end
 end

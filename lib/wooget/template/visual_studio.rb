@@ -24,14 +24,25 @@ module Wooget
           @options[:src][:files] << "DummyClass.cs"
         end
 
-        #test project defaults
-        if @options[:tests]
-
-        end
-
         template("assemblyinfo.erb", "#{options[:name]}/src/Properties/AssemblyInfo.cs")
         template("class.erb", "#{options[:name]}/src/DummyClass.cs")
         template("csproj.erb", "#{options[:name]}/src/#{options[:name]}.csproj")
+
+        if @options[:tests]
+          @options[:tests][:guid] ||= `uuidgen`.chomp
+          @options[:tests][:files]||= []
+          @options[:tests][:name] ||= options[:name]
+          @options[:tests][:files] << "DummyTest.cs"
+
+          #referencing src project from test project
+          @options[:tests][:projects]||= []
+          src_project = {:guid => @options[:src][:guid], :name => @options[:src][:name], :relative_location => "../../src/#{options[:name]}.csproj" }
+          @options[:tests][:projects] << src_project
+
+          template("test_file.erb", "#{options[:name]}/tests/DummyTest.cs")
+          template("tests_csproj.erb", "#{options[:name]}/tests/#{options[:name]}.Tests.csproj")
+        end
+
         template("sln.erb", "#{options[:name]}/src/#{options[:name]}.sln")
       end
     end

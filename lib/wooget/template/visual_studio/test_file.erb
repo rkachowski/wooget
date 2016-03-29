@@ -2,18 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ClassLibrary;
+using Wooget.<%= options[:name] %>;
 using NUnit.Framework;
 
 namespace ClassLibraryTests
 {
     [TestFixture]
-    public class Class1Tests
+    public class TestsThatShouldBeDeleted
     {
         [Test]
         public void TheTest()
         {
-            Assert.True(Class1.TheFunction(), "The function should return true");
+            Assert.True(DummyClass.TheFunction(), "The function should return true");
         }
     }
 }
