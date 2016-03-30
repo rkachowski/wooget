@@ -1,7 +1,6 @@
 require 'thor'
 require 'fileutils'
 require 'json'
-require 'pry-byebug'
 module Wooget
   class CLI < Thor
     include Thor::Actions

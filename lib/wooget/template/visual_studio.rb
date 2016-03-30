@@ -1,5 +1,3 @@
-require 'pry-byebug'
-
 module Wooget
   module Templates
     class VisualStudio  < Thor::Group
