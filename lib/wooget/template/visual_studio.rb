@@ -41,6 +41,8 @@ module Wooget
 
           template("test_file.erb", "#{options[:name]}/tests/DummyTest.cs")
           template("tests_csproj.erb", "#{options[:name]}/tests/#{options[:name]}.Tests.csproj")
+          template("tests_assemblyinfo.erb", "#{options[:name]}/tests/Properties/AssemblyInfo.cs")
+          template("paket.references.erb", "#{options[:name]}/tests/paket.references")
         end
 
         template("sln.erb", "#{options[:name]}/src/#{options[:name]}.sln")
