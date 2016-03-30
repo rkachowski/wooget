@@ -15,9 +15,13 @@ module Wooget
     end
 
     desc "create PACKAGE_NAME", "create a new package"
+    option :visual_studio, desc: "Should visual studio files (.csproj .sln) be generated?", type: :boolean, default: true
+    option :tests, desc: "Should test project be generated?", type: :boolean, default: true
     option :author, desc: "name to use for author field of nupkg"
     def create package_name
-      Wooget.create package_name, options
+      proj = Project.new
+      proj.create package_name, options
+      # Wooget.create package_name, options
     end
 
     desc "release", "release package"
@@ -42,7 +46,10 @@ module Wooget
     def test
       assert_package_dir
       sln = `find . -name *.sln`.chomp
+      abort "Can't find sln file for building test artifacts" unless sln.length > 4
+
       nunit = `find . -name nunit-console.exe`.chomp
+      abort "Can't find nunit-console for running tests" unless nunit.length > 4
 
       Dir.mktmpdir do |tmp_dir|
         #build tests

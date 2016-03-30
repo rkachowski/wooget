@@ -7,7 +7,7 @@ module Wooget
       include Thor::Actions
 
       def self.source_root
-        File.join(File.dirname(__FILE__),"visual_studio")
+        File.join(File.dirname(__FILE__),"files")
       end
 
       def create_project options={}
@@ -36,7 +36,7 @@ module Wooget
 
           #referencing src project from test project
           @options[:tests][:projects]||= []
-          src_project = {:guid => @options[:src][:guid], :name => @options[:src][:name], :relative_location => "../../src/#{options[:name]}.csproj" }
+          src_project = {:guid => @options[:src][:guid], :name => @options[:src][:name], :relative_location => "../src/#{options[:name]}.csproj" }
           @options[:tests][:projects] << src_project
 
           template("test_file.erb", "#{options[:name]}/tests/DummyTest.cs")

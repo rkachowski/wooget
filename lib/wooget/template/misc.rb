@@ -1,38 +1,23 @@
 module Wooget
   module Templates
+    class Misc < Thor::Group
+      attr_reader :options
+      include Thor::Actions
+
+      def self.source_root
+        File.join(File.dirname(__FILE__), "files")
+      end
+    end
+
     def self.readme options
-<<HERE
+      <<HERE
 
-## #{options[:name]}
-
-### Summary
-
-A cool package
-
-### Description
-
-
-
-### Usage
-
-```csharp
-var coolness = Cool.Package("yeah");
-coolness.Execute();
-
-```
-
-*author: #{options[:author]}*
 HERE
     end
 
     def self.gitignore
-<<HERE
-bin/
-obj/
-.vs/
-Debug/
-*AssemblyInfo.cs
-packages
+      <<HERE
+
 HERE
     end
   end
