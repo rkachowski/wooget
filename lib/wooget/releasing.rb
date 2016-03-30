@@ -157,7 +157,7 @@ module Wooget
 
   def self.valid_package_dir
     dir_files = Dir.glob("*")
-    required_files = %w(RELEASE_NOTES.md paket.template paket.dependencies paket.lock)
+    required_files = %w(RELEASE_NOTES.md paket.template paket.dependencies)
 
     required_files.all? { |required_file| dir_files.include? required_file}
   end
