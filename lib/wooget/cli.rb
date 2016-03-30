@@ -22,6 +22,7 @@ module Wooget
 
     desc "release", "release package"
     def release
+      assert_package_dir
       load_config
 
       version = Wooget.release
@@ -30,10 +31,29 @@ module Wooget
 
     desc "prerelease", "prerelease package"
     def prerelease
+      assert_package_dir
       load_config
 
       version = Wooget.prerelease
       puts "#{version} released successfully"
+    end
+
+    desc "test", "run tests on package in current dir"
+    def test
+      assert_package_dir
+      sln = `find . -name *.sln`.chomp
+      nunit = `find . -name nunit-console.exe`.chomp
+
+      Dir.mktmpdir do |tmp_dir|
+        #build tests
+        Util.run_cmd "xbuild #{sln} /p:OutDir='#{tmp_dir}/'"
+        raise "Build Test Failure" unless $?.exitstatus == 0
+
+        #run any test assemblies with nunit console
+        Dir[File.join(tmp_dir,"*Tests*.dll")].each do |assembly|
+          puts Util.run_cmd("mono #{nunit} #{assembly} -nologo")
+        end
+      end
     end
 
     desc "paket ARGS", "call bundled version of paket and pass args"
@@ -70,6 +90,10 @@ module Wooget
       Wooget.repos.merge! config[:repos]
 
       Wooget.log.debug "Acting as #{Wooget.credentials[:username]}"
+    end
+
+    def assert_package_dir
+      abort "#{Dir.pwd} doesn't appear to be a wooget package dir" unless Util.is_a_wooget_package_dir Dir.pwd
     end
 
     def assert_dependencies
