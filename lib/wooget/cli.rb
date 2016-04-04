@@ -5,7 +5,6 @@ module Wooget
   class CLI < Thor
     include Thor::Actions
     class_option :verbose, :desc => "Log level", :aliases => "-v", :type => :boolean
-    class_option :repo, :desc => "Repository to use", :default => "legacy"
     def initialize *args
       super
 
@@ -20,25 +19,30 @@ module Wooget
     def create package_name
       proj = Project.new
       proj.create package_name, options
-      # Wooget.create package_name, options
     end
 
+    option :repo, desc: "Which repo to use", default: :universe
+    option :push, desc: "Should built package be pushed to repo", default: true, type: :boolean
+    option :confirm, desc: "Ask for confirmation before pushing", default: true, type: :boolean
     desc "release", "release package"
     def release
-      assert_package_dir
-      load_config
-
-      version = Wooget.release
-      puts "#{version} released successfully"
+      package_release_checks
+      releaser = Releaser.new
+      version = releaser.release options
+      puts "#{version} released successfully to #{Wooget.repo}"
     end
+
+    option :repo, desc: "Which repo to use", default: :universe
+    option :push, desc: "Should built package be pushed to repo", default: true, type: :boolean
+    option :confirm, desc: "Ask for confirmation before pushing", default: true, type: :boolean
 
     desc "prerelease", "prerelease package"
     def prerelease
-      assert_package_dir
-      load_config
+      package_release_checks
 
-      version = Wooget.prerelease
-      puts "#{version} released successfully"
+      releaser = Releaser.new
+      version = releaser.prerelease options
+      puts "#{version} released successfully to #{Wooget.repo}"
     end
 
     desc "test", "run tests on package in current dir"
@@ -95,7 +99,20 @@ module Wooget
       Wooget.credentials.merge! config[:credentials]
       Wooget.repos.merge! config[:repos]
 
+      if config[:repos][:default]
+        Wooget.repos[:default] = config[:repos][:default]
+      end
+
+      #set default repo to whatever was passed on commandline (if anything)
+      if options[:repo]
+        overridden_repo = Wooget.repos[options[:repo]] || Wooget.repos[options[:repo].to_sym]
+        abort "Repo '#{options[:repo]}' not found in conf - options are #{Wooget.repos.keys.join(", ")}" unless overridden_repo
+
+        Wooget.repos[:default] = overridden_repo
+      end
+
       Wooget.log.debug "Acting as #{Wooget.credentials[:username]}"
+      Wooget.log.debug "Repo is #{Wooget.repo}"
     end
 
     def assert_package_dir
@@ -107,6 +124,12 @@ module Wooget
         `which #{dep}`
         raise "Couldn't find #{dep} - please install!" unless $?.exitstatus == 0
       end
+    end
+
+    def package_release_checks
+      assert_package_dir
+      load_config
+
     end
   end
 end

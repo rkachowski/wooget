@@ -19,6 +19,7 @@ module Wooget
       @options[:source_folder] = package_name
 
       empty_directory package_name
+      create_file File.join(package_name, "paket.lock")
       template("gitignore.erb", File.join(package_name, ".gitignore"))
       template("paket.template.erb", File.join(package_name, "paket.template"))
       template("paket.dependencies.erb", File.join(package_name, "paket.dependencies"))
@@ -34,29 +35,5 @@ module Wooget
         temp.create_project(vs_options)
       end
     end
-  end
-
-  def self.create package_name, options={}
-
-
-    FileUtils.mkdir(package_name)
-    template_file = Wooget::Templates.paket_template options
-
-    package_files = {
-        "paket.template" => template_file,
-        "paket.dependencies" => Wooget::Templates.paket_dependencies,
-        "paket.lock" => "",
-        ".gitignore" => Wooget::Templates.gitignore,
-        "RELEASE_NOTES.md" => Wooget::Templates.release_notes,
-        "README.md" => Wooget::Templates.readme(name: package_name, author: options[:author])
-    }
-
-    package_files.each do |filename, content|
-      File.open(File.join(package_name, filename), "w") { |f| f << content }
-    end
-
-    ["src", "tests"].each { |dir| Dir.mkdir(File.join(package_name, dir)) }
-
-
   end
 end

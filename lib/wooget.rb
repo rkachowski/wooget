@@ -4,7 +4,6 @@ require_relative "wooget/releasing"
 require_relative "wooget/creation"
 require_relative "wooget/paket"
 require_relative "wooget/util/misc"
-require_relative "wooget/template/paket"
 require_relative "wooget/template/misc"
 require_relative "wooget/template/visual_studio"
 

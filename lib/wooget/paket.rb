@@ -15,18 +15,12 @@ module Wooget
     end
 
     def self.pack options
-      cmd = "mono #{path} pack output #{options[:output]} version #{options[:version]} releaseNotes '#{options[:release_notes]}' templatefile #{options[:template]}"
-      Wooget.log.debug "Running #{cmd}"
-
-      system cmd
+      Util.run_cmd "mono #{path} pack output #{options[:output]} version #{options[:version]} releaseNotes '#{options[:release_notes]}' templatefile #{options[:template]}"
     end
 
     def self.push options
-      cmd = "nugetkey=#{options[:auth]} mono #{path} push url #{options[:url]} file #{options[:package]}"
-      Wooget.log.debug "Running #{cmd}"
-
-      system cmd
-    end
+      Util.run_cmd "nugetkey=#{options[:auth]} mono #{path} push url #{options[:url]} file #{options[:package]}"
+     end
 
     def self.path
       File.expand_path(File.join(__FILE__,"..","third_party","paket.exe"))
