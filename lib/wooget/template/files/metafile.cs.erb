@@ -1,0 +1,11 @@
+//This file is generated on release
+//The Wooga.SDK.Meta namespace is inspected by the tracking sdk at startup to detect which libs are in use
+
+namespace Wooga.SDK.Meta
+{
+  static public class <%= options[:source_folder].gsub(".","_") %>
+  {
+    public static readonly string name = "<%= options[:source_folder] %>";
+    public static readonly string version = "0.0.0";
+  }
+}

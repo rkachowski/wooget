@@ -25,6 +25,7 @@ module Wooget
       template("paket.dependencies.erb", File.join(package_name, "paket.dependencies"))
       template("RELEASE_NOTES.md.erb", File.join(package_name, "RELEASE_NOTES.md"))
       template("README.md.erb", File.join(package_name, "README.md"))
+      template("metafile.cs.erb", File.join(package_name,"src", package_name + "_meta.cs"))
 
       unless options[:no_visualstudio]
         temp = Wooget::Templates::VisualStudio.new()
