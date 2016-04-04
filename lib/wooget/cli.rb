@@ -21,7 +21,7 @@ module Wooget
       proj.create package_name, options
     end
 
-    option :repo, desc: "Which repo to use", default: :universe
+    option :repo, desc: "Which repo to use"
     option :push, desc: "Should built package be pushed to repo", default: true, type: :boolean
     option :confirm, desc: "Ask for confirmation before pushing", default: true, type: :boolean
     desc "release", "release package in current dir"
@@ -32,7 +32,7 @@ module Wooget
       puts "#{version} released successfully to #{Wooget.repo}"
     end
 
-    option :repo, desc: "Which repo to use", default: :universe
+    option :repo, desc: "Which repo to use"
     option :push, desc: "Should built package be pushed to repo", default: true, type: :boolean
     option :confirm, desc: "Ask for confirmation before pushing", default: true, type: :boolean
 
