@@ -24,7 +24,7 @@ module Wooget
     option :repo, desc: "Which repo to use", default: :universe
     option :push, desc: "Should built package be pushed to repo", default: true, type: :boolean
     option :confirm, desc: "Ask for confirmation before pushing", default: true, type: :boolean
-    desc "release", "release package"
+    desc "release", "release package in current dir"
     def release
       package_release_checks
       releaser = Releaser.new
@@ -36,7 +36,7 @@ module Wooget
     option :push, desc: "Should built package be pushed to repo", default: true, type: :boolean
     option :confirm, desc: "Ask for confirmation before pushing", default: true, type: :boolean
 
-    desc "prerelease", "prerelease package"
+    desc "prerelease", "prerelease package in current dir"
     def prerelease
       package_release_checks
 

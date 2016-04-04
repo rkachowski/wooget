@@ -25,4 +25,5 @@ Gem::Specification.new do |gem|
   gem.metadata['allowed_push_host'] = 'http://gem.sdk.wooga.com'
 
   gem.required_ruby_version = "~> 2.0"
+  gem.post_install_message = Wooget::POST_INSTALL
 end
