@@ -6,7 +6,7 @@ describe Wooget do
   it "should create a new package tree" do
     Dir.mktmpdir do |tmpdir|
       Dir.chdir(tmpdir) do
-        Wooget.create "Cool.Test.Package", author: "Test Author", repo: "testrepo"
+        Wooget::Project.new.create "Cool.Test.Package", author: "Test Author", repo: "testrepo"
 
         assert Dir.exists?("Cool.Test.Package"), "Dir should have been created for package"
         assert File.exists?(File.join("Cool.Test.Package", "paket.template")), "template should have been made for package"
@@ -20,7 +20,7 @@ describe Wooget do
   it "should correctly format prerelease files" do
     Dir.mktmpdir do |tmpdir|
       Dir.chdir(tmpdir) do
-        Wooget.create "Prerelease.Package", author: "Test Author", repo: "testrepo"
+        Wooget::Project.new.create "Prerelease.Package", author: "Test Author", repo: "testrepo"
 
         #put a release dependency at the end of the template
         `echo "dependencies" >> Prerelease.Package/paket.template`
@@ -36,7 +36,7 @@ describe Wooget do
 
 
         Dir.chdir("Prerelease.Package") do
-          Wooget.prerelease :no_push => true
+          Wooget::Releaser.new.prerelease :no_push => true
         end
 
         template_contents = File.open(File.join("Prerelease.Package", "paket.template")).read
