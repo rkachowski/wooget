@@ -47,23 +47,7 @@ module Wooget
 
     desc "test", "run tests on package in current dir"
     def test
-      assert_package_dir
-      sln = `find . -name *.sln`.chomp
-      abort "Can't find sln file for building test artifacts" unless sln.length > 4
-
-      nunit = `find . -name nunit-console.exe`.chomp
-      abort "Can't find nunit-console for running tests" unless nunit.length > 4
-
-      Dir.mktmpdir do |tmp_dir|
-        #build tests
-        Util.run_cmd "xbuild #{sln} /p:OutDir='#{tmp_dir}/'"
-        raise "Build Test Failure" unless $?.exitstatus == 0
-
-        #run any test assemblies with nunit console
-        Dir[File.join(tmp_dir,"*Tests*.dll")].each do |assembly|
-          puts Util.run_cmd("mono #{nunit} #{assembly} -nologo")
-        end
-      end
+      Util.run_tests
     end
 
     desc "paket ARGS", "call bundled version of paket and pass args"
@@ -82,6 +66,11 @@ module Wooget
       puts "Dependencies OK"
       load_config
       puts "Config OK"
+
+      if Util.is_a_unity_project_dir Dir.pwd
+        puts "Unity project detected - Checking setup"
+
+      end
     end
 
     private
@@ -122,7 +111,7 @@ module Wooget
     def assert_dependencies
       %w( mono ).each do |dep|
         `which #{dep}`
-        raise "Couldn't find #{dep} - please install!" unless $?.exitstatus == 0
+        abort "Couldn't find #{dep} - please install!" unless $?.exitstatus == 0
       end
     end
 

@@ -4,35 +4,42 @@ module Wooget
   class Releaser < Thor::Group
 
     def prerelease options={}
-      fail_msg = check_prerelease_preconditions
-      abort "Prerelease error: #{fail_msg}" if fail_msg
-      clean
-      set_prerelease_dependencies
+      prerelease_options = {
+          stage: "Preelease",
+          preconditions: -> { check_prerelease_preconditions },
+          prebuild: -> { set_prerelease_dependencies }
+      }
 
-      pack_options = get_build_options
-      version = pack_options[:version]
-      Paket.pack pack_options
-      abort "Prerelease error: paket pack fail" unless $?.exitstatus == 0
-
-      unless options[:no_push]
-        push_options = get_push_options
-        Paket.push get_push_options if yes?("Prerelease #{push_options[:package]} to #{Wooget.repo}?") and not options[:no_confirm]
-        abort "Prerelease error: paket push fail" unless $?.exitstatus == 0
-      end
-
-      File.basename(Dir.getwd)+"."+version
+      publish options.merge(prerelease_options)
     end
 
-    def release options={}
-      fail_msg = check_release_preconditions
-      abort "Release error: #{fail_msg}" if fail_msg
-      clean
-      set_release_dependencies
 
-      pack_options = get_build_options
-      version = pack_options[:version]
-      Paket.pack pack_options
-      abort "Release error: paket pack fail" unless $?.exitstatus == 0
+    def release options={}
+      release_options = {
+          stage: "Release",
+          preconditions: -> { check_release_preconditions },
+          prebuild: -> { set_release_dependencies }
+      }
+
+      publish options.merge(release_options)
+    end
+
+    def publish options={}
+      if options[:preconditions]
+        fail_msg = options[:preconditions].call
+        abort "#{options[:stage]} error: #{fail_msg}" if fail_msg
+      end
+      options[:prebuild].call if options[:prebuild]
+
+      clean
+
+      #build package
+      package_options = get_package_details
+      version = package_options[:version]
+      Paket.pack package_options
+      abort "#{options[:stage]} error: paket pack fail" unless $?.exitstatus == 0
+
+      #push package
 
       unless options[:no_push]
         push_options = get_push_options
@@ -40,19 +47,20 @@ module Wooget
         unless options[:no_confirm]
           if yes?("Release #{push_options[:package]} to #{Wooget.repo}?")
             Paket.push push_options
-            abort "Release error: paket push fail" unless $?.exitstatus == 0
+            abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
           else
             abort "Cancelled remote push"
           end
         else
           Paket.push push_options
-          abort "Release error: paket push fail" unless $?.exitstatus == 0
+          abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
         end
 
       end
 
       File.basename(Dir.getwd)+"."+version
     end
+
 
     def clean
       if Dir.exists? "bin"
@@ -63,7 +71,7 @@ module Wooget
 
     private
 
-    def get_build_options
+    def get_package_details
 
       version, prerelease = get_version_from_release_notes
       version = version+"-"+prerelease unless prerelease.empty?

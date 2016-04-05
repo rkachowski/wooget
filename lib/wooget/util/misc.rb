@@ -22,5 +22,25 @@ module Wooget
       Wooget.log.debug "Output: #{result}"
       result
     end
+
+    def self.run_tests
+      assert_package_dir
+      sln = `find . -name *.sln`.chomp
+      abort "Can't find sln file for building test artifacts" unless sln.length > 4
+
+      nunit = `find . -name nunit-console.exe`.chomp
+      abort "Can't find nunit-console for running tests" unless nunit.length > 4
+
+      Dir.mktmpdir do |tmp_dir|
+        #build tests
+        run_cmd "xbuild #{sln} /p:OutDir='#{tmp_dir}/'"
+        raise "Build Test Failure" unless $?.exitstatus == 0
+
+        #run any test assemblies with nunit console
+        Dir[File.join(tmp_dir,"*Tests*.dll")].each do |assembly|
+          puts run_cmd("mono #{nunit} #{assembly} -nologo")
+        end
+      end
+    end
   end
 end
