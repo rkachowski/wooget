@@ -1,10 +1,12 @@
+require 'fileutils'
+
 module Wooget
   class Releaser < Thor::Group
 
     def prerelease options={}
       fail_msg = check_prerelease_preconditions
       abort "Prerelease error: #{fail_msg}" if fail_msg
-
+      clean
       set_prerelease_dependencies
 
       pack_options = get_build_options
@@ -24,7 +26,7 @@ module Wooget
     def release options={}
       fail_msg = check_release_preconditions
       abort "Release error: #{fail_msg}" if fail_msg
-
+      clean
       set_release_dependencies
 
       pack_options = get_build_options
@@ -50,6 +52,13 @@ module Wooget
       end
 
       File.basename(Dir.getwd)+"."+version
+    end
+
+    def clean
+      if Dir.exists? "bin"
+        Wooget.log.debug "Cleaning bin dir"
+        FileUtils.rmtree "bin"
+      end
     end
 
     private
