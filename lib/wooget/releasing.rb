@@ -34,8 +34,19 @@ module Wooget
 
       unless options[:no_push]
         push_options = get_push_options
-        Paket.push push_options if yes?("Release #{push_options[:package]} to #{Wooget.repo}?") and not options[:no_confirm]
-        abort "Release error: paket push fail" unless $?.exitstatus == 0
+
+        unless options[:no_confirm]
+          if yes?("Release #{push_options[:package]} to #{Wooget.repo}?")
+            Paket.push push_options
+            abort "Release error: paket push fail" unless $?.exitstatus == 0
+          else
+            abort "Cancelled remote push"
+          end
+        else
+          Paket.push push_options
+          abort "Release error: paket push fail" unless $?.exitstatus == 0
+        end
+
       end
 
       File.basename(Dir.getwd)+"."+version
