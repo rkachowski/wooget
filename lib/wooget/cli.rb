@@ -4,7 +4,7 @@ require 'json'
 module Wooget
   class CLI < Thor
     include Thor::Actions
-    class_option :verbose, :desc => "Log level", :aliases => "-v", :type => :boolean
+    class_option :verbose, :desc => "Spit out tons of logging info", :aliases => "-v", :type => :boolean
     def initialize *args
       super
 

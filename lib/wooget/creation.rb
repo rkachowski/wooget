@@ -27,7 +27,7 @@ module Wooget
       template("README.md.erb", File.join(package_name, "README.md"))
       template("metafile.cs.erb", File.join(package_name,"src", package_name + "_meta.cs"))
 
-      unless options[:no_visualstudio]
+      if options[:visual_studio]
         temp = Wooget::Templates::VisualStudio.new()
         destination = File.expand_path("./#{package_name}")
 
