@@ -48,5 +48,24 @@ describe Wooget do
       end
     end
   end
+
+  it "should update metadatafiles correctly" do
+    Dir.mktmpdir do |tmpdir|
+      Dir.chdir(tmpdir) do
+        proj = Wooget::Project.new
+        proj.options = { source_folder: "DoesntMatter" }
+        proj.template("metafile.cs.erb", "TestFile_meta.cs")
+
+        assert File.exists?("TestFile_meta.cs"), "Test file should have been created"
+
+        releaser = Wooget::Releaser.new
+        releaser.update_metadata "1.2.3-testversion"
+
+        file_contents = File.open("TestFile_meta.cs").read
+        assert (file_contents =~ /1.2.3-testversion/), "1.2.3-testversion should be in the metafile"
+        assert !(file_contents =~ /0.0.0/), "0.0.0 (default version) shouldn't be in the metafile anymore"
+      end
+    end
+  end
 end
 

@@ -1,7 +1,7 @@
 module Wooget
   module Templates
     class VisualStudio  < Thor::Group
-      attr_reader :options
+      attr_accessor :options
       include Thor::Actions
 
       def self.source_root

@@ -5,7 +5,7 @@ module Wooget
 
     def prerelease options={}
       prerelease_options = {
-          stage: "Preelease",
+          stage: "Prerelease",
           preconditions: -> { check_prerelease_preconditions },
           prebuild: -> { set_prerelease_dependencies }
       }
@@ -36,11 +36,11 @@ module Wooget
       #build package
       package_options = get_package_details
       version = package_options[:version]
+      update_metadata version
       Paket.pack package_options
       abort "#{options[:stage]} error: paket pack fail" unless $?.exitstatus == 0
 
       #push package
-
       unless options[:no_push]
         push_options = get_push_options
 
@@ -69,7 +69,25 @@ module Wooget
       end
     end
 
+    def update_metadata new_version
+      meta_files = Dir.glob("**/*_meta.cs")
+
+      meta_files.each do |file|
+        file_contents = File.open(file).each_line.to_a
+        file_contents.map! do |line|
+          if line =~ /public static readonly string version/
+            "    public static readonly string version = \"#{new_version}\";\n"
+          else
+            line
+          end
+        end
+        File.open(file,"w"){ |f| f << file_contents.join }
+      end
+    end
+
     private
+
+
 
     def get_package_details
 
