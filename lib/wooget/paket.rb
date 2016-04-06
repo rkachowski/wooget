@@ -21,7 +21,7 @@ module Wooget
       unless $?.exitstatus == 0
         abort "Paket install failed:\n #{reason}"
       end
-      
+
       reason = Util.run_cmd "mono #{unity3d_path} install"
       unless $?.exitstatus == 0
         abort "Paket.Unity3d install failed:\n #{reason}"
