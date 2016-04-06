@@ -60,6 +60,18 @@ module Wooget
       Wooget::Paket.unity3d_execute(args.join(" "))
     end
 
+    desc "install", "install packages into this unity project"
+    def install
+      case
+        when Util.is_a_unity_project_dir(Dir.pwd)
+          Paket.unity_install
+        when Util.is_a_wooget_package_dir(Dir.pwd)
+          abort "csproj updating not supported yet :D"
+        else
+          abort "Unity project not found in current directory"
+      end
+    end
+
     desc "setup", "setup environment for wooget usage"
     def setup
       assert_dependencies
