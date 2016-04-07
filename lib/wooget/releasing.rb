@@ -41,10 +41,10 @@ module Wooget
       abort "#{options[:stage]} error: paket pack fail" unless $?.exitstatus == 0
 
       #push package
-      unless options[:no_push]
+      if options[:push]
         push_options = get_push_options
 
-        unless options[:no_confirm]
+        if options[:confirm]
           if yes?("Release #{push_options[:package]} to #{Wooget.repo}?")
             Paket.push push_options
             abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0

@@ -71,6 +71,7 @@ module Wooget
         else
           abort "Unity project not found in current directory"
       end
+      puts "Installed!"
     end
 
     desc "setup", "setup environment for wooget usage"
