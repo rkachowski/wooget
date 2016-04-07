@@ -14,23 +14,30 @@ module Wooget
       exec cmd
     end
 
-    def self.unity_install
+    def self.install
+      paket_commands paket: "install", paket_unity3d: "install"
+    end
+
+    def self.update
+      paket_commands paket: "update", paket_unity3d: "install"
+    end
+
+    def self.paket_commands commands={}
       env_vars = "USERNAME=#{Wooget.credentials[:username]} PASSWORD=#{Wooget.credentials[:password]}"
-      reason = Util.run_cmd "#{env_vars} mono #{path} install"
+      
+      reason = Util.run_cmd "#{env_vars} mono #{path} #{commands[:paket]}"
       unless $?.exitstatus == 0
         abort "Paket install failed:\n #{reason}"
       end
 
-=begin
-      if should_generate_unity3d_references
-        FileUtils.rm("paket.unity3d.references") if File.exists?("paket.unity3d.references")
+      if Util.is_a_unity_project_dir(Dir.pwd)
+        #TODO: generate unity3d references if applicable
 
-        #generate unity3d references file from dependencies
-      end
-=end
-      reason = Util.run_cmd "#{env_vars} mono #{unity3d_path} install"
-      unless $?.exitstatus == 0
-        abort "Paket.Unity3d install failed:\n #{reason}"
+
+        reason = Util.run_cmd "#{env_vars} mono #{unity3d_path} #{commands[:paket_unity3d]}"
+        unless $?.exitstatus == 0
+          abort "Paket.Unity3d install failed:\n #{reason}"
+        end
       end
     end
 

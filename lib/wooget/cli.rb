@@ -5,6 +5,7 @@ module Wooget
   class CLI < Thor
     include Thor::Actions
     class_option :verbose, :desc => "Spit out tons of logging info", :aliases => "-v", :type => :boolean
+
     def initialize *args
       super
 
@@ -16,6 +17,7 @@ module Wooget
     option :visual_studio, desc: "Should visual studio files (.csproj .sln) be generated?", type: :boolean, default: true
     option :tests, desc: "Should test project be generated?", type: :boolean, default: true
     option :author, desc: "name to use for author field of nupkg"
+
     def create package_name
       proj = Project.new
       proj.create package_name, options
@@ -25,6 +27,7 @@ module Wooget
     option :push, desc: "Should built package be pushed to repo", default: true, type: :boolean
     option :confirm, desc: "Ask for confirmation before pushing", default: true, type: :boolean
     desc "release", "release package in current dir"
+
     def release
       package_release_checks
       releaser = Releaser.new
@@ -37,6 +40,7 @@ module Wooget
     option :confirm, desc: "Ask for confirmation before pushing", default: true, type: :boolean
 
     desc "prerelease", "prerelease package in current dir"
+
     def prerelease
       package_release_checks
 
@@ -46,35 +50,38 @@ module Wooget
     end
 
     desc "test", "run tests on package in current dir"
+
     def test
       Util.run_tests
     end
 
     desc "paket ARGS", "call bundled version of paket and pass args"
+
     def paket *args
       Wooget::Paket.execute(args.join(" "))
     end
 
     desc "paket_unity3d ARGS", "call bundled version of paket.unity3d and pass args"
+
     def paket_unity3d *args
       Wooget::Paket.unity3d_execute(args.join(" "))
     end
 
     desc "install", "install packages into this unity project"
+
     def install
       load_config
-      case
-        when Util.is_a_unity_project_dir(Dir.pwd)
-          Paket.unity_install
-        when Util.is_a_wooget_package_dir(Dir.pwd)
-          abort "csproj updating not supported yet :D"
-        else
-          abort "Unity project not found in current directory"
+
+      if Util.is_a_unity_project_dir(Dir.pwd) or Util.is_a_wooget_package_dir(Dir.pwd)
+        Paket.install
+      else
+        abort "Unity project not found in current directory"
       end
       puts "Installed!"
     end
 
     desc "setup", "setup environment for wooget usage"
+
     def setup
       assert_dependencies
       puts "Dependencies OK"
@@ -89,12 +96,12 @@ module Wooget
 
     private
     def load_config
-      config_location = File.expand_path(File.join("~",".wooget"))
+      config_location = File.expand_path(File.join("~", ".wooget"))
       unless File.exists? config_location
         Wooget.log.info "Creating default config at #{config_location}"
 
-        default_config = File.expand_path(File.join(File.dirname(__FILE__),"template","wooget_conf.json"))
-        FileUtils.cp(default_config,config_location)
+        default_config = File.expand_path(File.join(File.dirname(__FILE__), "template", "wooget_conf.json"))
+        FileUtils.cp(default_config, config_location)
       end
 
       config = JSON.parse(File.read(config_location), symbolize_names: true)
@@ -132,7 +139,6 @@ module Wooget
     def package_release_checks
       assert_package_dir
       load_config
-
     end
   end
 end

@@ -36,29 +36,30 @@ module Wooget
       #build package
       package_options = get_package_details
       version = package_options[:version]
+      package_name = File.basename(Dir.getwd)+"."+version
+
       update_metadata version
       Paket.pack package_options
       abort "#{options[:stage]} error: paket pack fail" unless $?.exitstatus == 0
 
-      #push package
-      if options[:push]
-        push_options = get_push_options
 
-        if options[:confirm]
-          if yes?("Release #{push_options[:package]} to #{Wooget.repo}?")
-            Paket.push push_options
-            abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
-          else
-            abort "Cancelled remote push"
-          end
-        else
+      abort("Skipping push - built #{package_name} successfully") unless options[:push]
+      #push package
+      push_options = get_push_options
+
+      if options[:confirm]
+        if yes?("Release #{push_options[:package]} to #{Wooget.repo}?")
           Paket.push push_options
           abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
+        else
+          abort "Cancelled remote push"
         end
-
+      else
+        Paket.push push_options
+        abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
       end
 
-      File.basename(Dir.getwd)+"."+version
+      package_name
     end
 
 
