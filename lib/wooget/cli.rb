@@ -80,6 +80,19 @@ module Wooget
       puts "Installed!"
     end
 
+    desc "update", "update packages into this unity project"
+
+    def update
+      load_config
+
+      if Util.is_a_unity_project_dir(Dir.pwd) or Util.is_a_wooget_package_dir(Dir.pwd)
+        Paket.update
+      else
+        abort "Unity project not found in current directory"
+      end
+      puts "Installed!"
+    end
+
     desc "setup", "setup environment for wooget usage"
 
     def setup

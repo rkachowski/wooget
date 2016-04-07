@@ -24,7 +24,7 @@ module Wooget
 
     def self.paket_commands commands={}
       env_vars = "USERNAME=#{Wooget.credentials[:username]} PASSWORD=#{Wooget.credentials[:password]}"
-      
+
       reason = Util.run_cmd "#{env_vars} mono #{path} #{commands[:paket]}"
       unless $?.exitstatus == 0
         abort "Paket install failed:\n #{reason}"
