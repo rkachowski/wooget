@@ -1,12 +1,15 @@
+//remove the line below if you want to manually
+//unity.3d.references automanaged
+
 //public nuget repo
 source https://nuget.org/api/v2
 
-//private wooga repo
-source https://wooga.artifactoryonline.com/wooga/api/nuget/nuget-private
+//legacy wooga repo
+source https://wooga.artifactoryonline.com/wooga/api/nuget/nuget-private username: "%USERNAME%" password: "%PASSWORD%"
 
-//future private wooga repos
-source https://wooga.artifactoryonline.com/wooga/api/nuget/sdk-main
-source https://wooga.artifactoryonline.com/wooga/api/nuget/sdk-universe
+//private wooga repos
+source https://wooga.artifactoryonline.com/wooga/api/nuget/sdk-main username: "%USERNAME%" password: "%PASSWORD%"
+source https://wooga.artifactoryonline.com/wooga/api/nuget/sdk-universe username: "%USERNAME%" password: "%PASSWORD%"
 
 nuget NUnit ~> 2
 nuget NUnit.Runners ~> 2

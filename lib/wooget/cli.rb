@@ -62,6 +62,7 @@ module Wooget
 
     desc "install", "install packages into this unity project"
     def install
+      load_config
       case
         when Util.is_a_unity_project_dir(Dir.pwd)
           Paket.unity_install
