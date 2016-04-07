@@ -67,30 +67,30 @@ module Wooget
       Wooget::Paket.unity3d_execute(args.join(" "))
     end
 
+    option :force, desc: "Forces the download and reinstallation of all packages.", aliases: "-f", type: :boolean, default: false
     desc "install", "install packages into this unity project"
-
     def install
       load_config
 
       if Util.is_a_unity_project_dir(Dir.pwd) or Util.is_a_wooget_package_dir(Dir.pwd)
-        Paket.install
+        Paket.install options
       else
         abort "Unity project not found in current directory"
       end
       puts "Installed!"
     end
 
+    option :force, desc: "Forces the download and reinstallation of all packages.", aliases: "-f", type: :boolean, default: false
     desc "update", "update packages into this unity project"
-
     def update
       load_config
 
       if Util.is_a_unity_project_dir(Dir.pwd) or Util.is_a_wooget_package_dir(Dir.pwd)
-        Paket.update
+        Paket.update options
       else
         abort "Unity project not found in current directory"
       end
-      puts "Installed!"
+      puts "Updated!"
     end
 
     desc "setup", "setup environment for wooget usage"

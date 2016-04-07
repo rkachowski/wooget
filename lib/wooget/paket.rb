@@ -14,18 +14,18 @@ module Wooget
       exec cmd
     end
 
-    def self.install
-      paket_commands paket: "install", paket_unity3d: "install"
+    def self.install options={}
+      paket_commands paket: "install", paket_unity3d: "install", force: options[:force]
     end
 
-    def self.update
-      paket_commands paket: "update", paket_unity3d: "install"
+    def self.update options={}
+      paket_commands paket: "update", paket_unity3d: "install", force: options[:force]
     end
 
     def self.paket_commands commands={}
       env_vars = "USERNAME=#{Wooget.credentials[:username]} PASSWORD=#{Wooget.credentials[:password]}"
 
-      reason = Util.run_cmd "#{env_vars} mono #{path} #{commands[:paket]}"
+      reason = Util.run_cmd "#{env_vars} mono #{path} #{commands[:paket]} #{"--force" if commands[:force]}"
       unless $?.exitstatus == 0
         abort "Paket install failed:\n #{reason}"
       end
