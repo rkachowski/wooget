@@ -1,9 +1,9 @@
 type file
-id Wooget.<%= options[:source_folder]%>
+id <%= options[:source_folder].start_with?("Wooga.") ? options[:source_folder] : "Wooga.#{options[:source_folder]}"%>
 owners Wooga
 authors <%= options[:author] %>
 projectUrl
-    https://github.com/wooga/<%= options[:repo] %>
+    https://github.com/wooga/<%= "wdk-unity-#{options[:repo]}" %>
 requireLicenseAcceptance
     false
 copyright
@@ -17,5 +17,5 @@ description
 files
     ../<%=options[:source_folder]%>/**/*.cs ==> content/<%= options[:source_folder] %>
     !../<%=options[:source_folder]%>/bin
-    !../<%=options[:source_folder]%>/tests
+    !../<%=options[:source_folder]%>/tests/**/*.cs
     !../**/AssemblyInfo.cs
