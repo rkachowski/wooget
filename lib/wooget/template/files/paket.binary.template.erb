@@ -1,0 +1,17 @@
+type project
+id <%= options[:name].start_with?("Wooga.") ? options[:name] : "Wooga.#{options[:name]}"%>.Binary
+owners Wooga
+authors Wooga
+projectUrl
+    https://github.com/wooga/<%= "wdk-unity-#{options[:repo]}" %>
+requireLicenseAcceptance
+    false
+copyright
+    Copyright <%= Time.now.year %>
+tags
+    wdk, unity, wooget, binary
+summary
+    Compiled version of <%= options[:name].start_with?("Wooga.") ? options[:name] : "Wooga.#{options[:name]}"%>
+description
+    Binary version of <%= options[:name].start_with?("Wooga.") ? options[:name] : "Wooga.#{options[:name]}"%> - to be used mainly for development dependencies.
+

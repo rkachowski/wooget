@@ -24,7 +24,6 @@ module Wooget
     end
 
     def self.run_tests
-      assert_package_dir
       sln = `find . -name *.sln`.chomp
       abort "Can't find sln file for building test artifacts" unless sln.length > 4
 
@@ -44,11 +43,10 @@ module Wooget
     end
 
     def self.build
-      assert_package_dir
       sln = `find . -name *.sln`.chomp
       abort "Can't find sln file for building test artifacts" unless sln.length > 4
 
-      build_log = run_cmd "xbuild #{sln}"
+      build_log = run_cmd "xbuild #{sln} /p:Configuration=Release"
       abort "Build Failure: #{build_log}" unless $?.exitstatus == 0
     end
   end

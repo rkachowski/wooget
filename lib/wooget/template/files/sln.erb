@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{<%= options[:guid]%>}") = "<%= options[:src][:name]%>", "<%= options[:src][:name]%>.csproj", "{<%= options[:src][:guid]%>}"
+Project("{<%= options[:guid]%>}") = "<%= options[:src][:name]%>", "<%= options[:src][:name]%>\<%= options[:src][:name]%>.csproj", "{<%= options[:src][:guid]%>}"
 EndProject
 <% if options[:tests] -%>
 Project("{<%= options[:guid]%>}") = "<%= options[:tests][:name]%>.Tests", "..\tests\<%= options[:tests][:name]%>.Tests.csproj", "{<%= options[:tests][:guid]%>}"

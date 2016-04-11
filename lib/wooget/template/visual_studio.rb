@@ -22,9 +22,10 @@ module Wooget
           @options[:src][:files] << "DummyClass.cs"
         end
 
-        template("assemblyinfo.erb", "#{options[:name]}/src/Properties/AssemblyInfo.cs")
-        template("class.erb", "#{options[:name]}/src/DummyClass.cs")
-        template("csproj.erb", "#{options[:name]}/src/#{options[:name]}.csproj")
+        template("assemblyinfo.erb", "#{options[:name]}/src/#{options[:name]}/Properties/AssemblyInfo.cs")
+        template("class.erb", "#{options[:name]}/src/#{options[:name]}/DummyClass.cs")
+        template("csproj.erb", "#{options[:name]}/src/#{options[:name]}/#{options[:name]}.csproj")
+        template("paket.binary.template.erb", "#{options[:name]}/src/#{options[:name]}/#{options[:name]}.csproj.paket.template")
 
         if @options[:tests]
           @options[:tests][:guid] ||= `uuidgen`.chomp
