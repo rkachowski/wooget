@@ -7,7 +7,7 @@ module Wooget
     def self.is_a_wooget_package_dir path
       contents = Dir["*"]
 
-      contents.include?("paket.template") and contents.include?("RELEASE_NOTES.md")
+      contents.include?("paket.dependencies") and contents.include?("RELEASE_NOTES.md")
     end
 
     def self.is_a_unity_project_dir path

@@ -33,7 +33,6 @@ module Wooget
       if Util.is_a_unity_project_dir(Dir.pwd)
         #TODO: generate unity3d references if applicable
 
-
         reason = Util.run_cmd "#{env_vars} mono #{unity3d_path} #{commands[:paket_unity3d]}"
         unless $?.exitstatus == 0
           abort "Paket.Unity3d install failed:\n #{reason}"
