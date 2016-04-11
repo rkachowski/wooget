@@ -32,7 +32,7 @@ module Wooget
         destination = File.expand_path("./#{package_name}")
 
         vs_options = {:destination => destination, :name => package_name, :src =>{}}
-        vs_options[:tests] = {} unless options[:no_tests]
+        vs_options[:tests] = options[:tests]
         temp.create_project(vs_options)
       end
     end

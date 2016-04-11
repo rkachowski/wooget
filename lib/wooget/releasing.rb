@@ -38,6 +38,13 @@ module Wooget
       version = package_options[:version]
       package_name = File.basename(Dir.getwd)+"."+version
 
+      #if we find a csproj.paket.template file then we need to build a binary release
+      `find . -name "*csproj.paket.template"`
+      needs_dll_build = $?.exitstatus == 0
+
+      Util.build if needs_dll_build
+
+
       update_metadata version
       Paket.pack package_options
       abort "#{options[:stage]} error: paket pack fail" unless $?.exitstatus == 0
