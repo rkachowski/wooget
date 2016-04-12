@@ -44,9 +44,10 @@ module Wooget
 
       Util.build if needs_dll_build
 
-
       update_metadata version
-      Paket.pack package_options
+
+      package_options[:templates].each { |t| Paket.pack package_options.merge(template: t) }
+
       abort "#{options[:stage]} error: paket pack fail" unless $?.exitstatus == 0
 
 
@@ -104,7 +105,7 @@ module Wooget
 
       {
           :output => "bin",
-          :template => "paket.template",
+          :templates => `find . -name "*paket.template"`.split,
           :version => version,
           :release_notes => get_latest_release_notes
       }

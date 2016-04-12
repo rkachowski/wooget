@@ -22,9 +22,11 @@ module Wooget
       paket_commands paket: "update", paket_unity3d: "install", force: options[:force]
     end
 
-    def self.paket_commands commands={}
-      env_vars = "USERNAME=#{Wooget.credentials[:username]} PASSWORD=#{Wooget.credentials[:password]}"
+    def self.env_vars
+      "USERNAME=#{Wooget.credentials[:username]} PASSWORD=#{Wooget.credentials[:password]}"
+    end
 
+    def self.paket_commands commands={}
       reason = Util.run_cmd "#{env_vars} mono #{path} #{commands[:paket]} #{"--force" if commands[:force]}"
       unless $?.exitstatus == 0
         abort "Paket install failed:\n #{reason}"
@@ -46,11 +48,11 @@ module Wooget
     end
 
     def self.pack options
-      Util.run_cmd "mono #{path} pack output #{options[:output]} version #{options[:version]} releaseNotes '#{options[:release_notes]}' templatefile #{options[:template]}"
+      Util.run_cmd "#{env_vars} mono #{path} pack output #{options[:output]} version #{options[:version]} releaseNotes '#{options[:release_notes]}' templatefile #{options[:template]}"
     end
 
     def self.push options
-      Util.run_cmd "nugetkey=#{options[:auth]} mono #{path} push url #{options[:url]} file #{options[:package]}"
+      Util.run_cmd "#{env_vars} nugetkey=#{options[:auth]} mono #{path} push url #{options[:url]} file #{options[:package]}"
      end
 
     def self.path
