@@ -46,25 +46,27 @@ module Wooget
 
       update_metadata version
 
-      package_options[:templates].each { |t| Paket.pack package_options.merge(template: t) }
-
-      abort "#{options[:stage]} error: paket pack fail" unless $?.exitstatus == 0
-
+      package_options[:templates].each do |t|
+        Paket.pack package_options.merge(template: t)
+        abort "#{options[:stage]} error: paket pack fail" unless $?.exitstatus == 0
+      end
 
       abort("Skipping push - built #{package_name} successfully") unless options[:push]
       #push package
       push_options = get_push_options
 
-      if options[:confirm]
-        if yes?("Release #{push_options[:package]} to #{Wooget.repo}?")
-          Paket.push push_options
-          abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
+      push_options[:packages].each do |package|
+        if options[:confirm]
+          if yes?("Release #{package} to #{Wooget.repo}?")
+            Paket.push push_options.merge(package: package)
+            abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
+          else
+            abort "Cancelled remote push"
+          end
         else
-          abort "Cancelled remote push"
+          Paket.push push_options.merge(package: package)
+          abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
         end
-      else
-        Paket.push push_options
-        abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
       end
 
       package_name
@@ -90,12 +92,11 @@ module Wooget
             line
           end
         end
-        File.open(file,"w"){ |f| f << file_contents.join }
+        File.open(file, "w") { |f| f << file_contents.join }
       end
     end
 
     private
-
 
 
     def get_package_details
@@ -115,7 +116,7 @@ module Wooget
       {
           :auth => "#{Wooget.credentials[:username]}:#{Wooget.credentials[:password]}",
           :url => Wooget.repo,
-          :package => Dir['bin/*.nupkg'].max { |f| File.ctime(f) }#takes the most recent nupkg file
+          :packages => Dir['bin/*.nupkg']
       }
     end
 
