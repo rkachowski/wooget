@@ -1,7 +1,7 @@
 require_relative "wooget/version"
 require_relative "wooget/cli"
 require_relative "wooget/releasing"
-require_relative "wooget/creation"
+require_relative "wooget/project"
 require_relative "wooget/paket"
 require_relative "wooget/util/misc"
 require_relative "wooget/template/visual_studio"

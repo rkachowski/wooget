@@ -3,6 +3,7 @@ module Wooget
     class VisualStudio  < Thor::Group
       attr_accessor :options
       include Thor::Actions
+      add_runtime_options!
 
       def self.source_root
         File.join(File.dirname(__FILE__),"files")
@@ -35,7 +36,7 @@ module Wooget
 
           #referencing src project from test project
           @options[:tests][:projects]||= []
-          src_project = {:guid => @options[:src][:guid], :name => @options[:src][:name], :relative_location => "../src/#{options[:name]}.csproj" }
+          src_project = {:guid => @options[:src][:guid], :name => @options[:src][:name], :relative_location => "../src/#{options[:name]}/#{options[:name]}.csproj" }
           @options[:tests][:projects] << src_project
 
           template("test_file.erb", "#{options[:name]}/tests/DummyTest.cs")

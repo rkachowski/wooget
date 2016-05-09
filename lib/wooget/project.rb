@@ -7,6 +7,7 @@ module Wooget
   class Project < Thor::Group
     attr_reader :options
     include Thor::Actions
+    add_runtime_options!
 
     def self.source_root
       File.join(File.dirname(__FILE__), "template", "files")
@@ -31,7 +32,7 @@ module Wooget
         temp = Wooget::Templates::VisualStudio.new()
         destination = File.expand_path("./#{package_name}")
 
-        vs_options = {:destination => destination, :name => package_name, :src =>{}}
+        vs_options = {:destination => destination, :name => package_name, :src =>{}, :quiet =>@options[:quiet]}
         vs_options[:tests] = {} if options[:tests]
         temp.create_project(vs_options)
       end

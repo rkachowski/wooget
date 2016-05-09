@@ -3,6 +3,7 @@ require 'fileutils'
 module Wooget
   class Releaser < Thor::Group
 
+    #publish in prerelease mode
     def prerelease options={}
       prerelease_options = {
           stage: "Prerelease",
@@ -13,7 +14,7 @@ module Wooget
       publish options.merge(prerelease_options)
     end
 
-
+    #publish in release mode
     def release options={}
       release_options = {
           stage: "Release",
@@ -24,6 +25,7 @@ module Wooget
       publish options.merge(release_options)
     end
 
+    #build and push packages
     def publish options={}
       if options[:preconditions]
         fail_msg = options[:preconditions].call
@@ -51,8 +53,17 @@ module Wooget
         abort "#{options[:stage]} error: paket pack fail" unless $?.exitstatus == 0
       end
 
-      abort("Skipping push - built #{package_name} successfully") unless options[:push]
-      #push package
+      push(options, package_name)
+
+      package_name
+    end
+
+    def push(options, package_name)
+      unless options[:push]
+        puts "Skipping push - built #{package_name} successfully" unless options[:quiet]
+        return
+      end
+
       push_options = get_push_options
 
       push_options[:packages].each do |package|
@@ -68,8 +79,6 @@ module Wooget
           abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
         end
       end
-
-      package_name
     end
 
 
@@ -80,6 +89,7 @@ module Wooget
       end
     end
 
+    # update the client side tracking metadata with the latest version
     def update_metadata new_version
       meta_files = Dir.glob("**/*_meta.cs")
 
