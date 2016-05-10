@@ -42,6 +42,12 @@ module Wooget
       end
     end
 
+    def self.file_contains? filename, string
+      `grep -l '#{string}' '#{filename}'`
+
+      $?.exitstatus == 0
+    end
+
     def self.build
       sln = `find . -name *.sln`.chomp
       abort "Can't find sln file for building test artifacts" unless sln.length > 4

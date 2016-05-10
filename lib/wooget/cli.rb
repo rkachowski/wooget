@@ -70,10 +70,14 @@ module Wooget
 
     option :force, desc: "Forces the download and reinstallation of all packages.", aliases: "-f", type: :boolean, default: false
     desc "install", "install packages into this unity project"
-    def install
+    def install(package=nil)
       load_config
-
+      
       if Util.is_a_unity_project_dir(Dir.pwd) or Util.is_a_wooget_package_dir(Dir.pwd)
+        if package and Util.is_a_unity_project_dir(Dir.pwd)
+          Wooget::Unity.new.install package
+        end
+
         Paket.install options
       else
         abort "Unity project not found in current directory"
@@ -83,7 +87,7 @@ module Wooget
 
     option :force, desc: "Forces the download and reinstallation of all packages.", aliases: "-f", type: :boolean, default: false
     desc "update", "update packages into this unity project"
-    def update
+    def update(package=nil)
       load_config
 
       if Util.is_a_unity_project_dir(Dir.pwd) or Util.is_a_wooget_package_dir(Dir.pwd)

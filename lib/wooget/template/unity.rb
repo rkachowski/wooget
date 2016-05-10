@@ -19,5 +19,31 @@ module Wooget
       create_file "paket.lock"
       create_file "paket.unity3d.references"
     end
+
+    def install package
+      unless Util.file_contains? "paket.dependencies", package
+        `echo 'nuget #{package}' >> paket.dependencies`
+      end
+
+      generate_references
+    end
+
+    def update package
+
+    end
+
+    def generate_references
+      unless Paket.should_generate_unity3d_references
+        Wooget.log.debug "automanage tag not found - skipping `paket.unity3d.references` generation"
+        return
+      end
+
+      to_install = File.open("paket.dependencies").readlines.select { |l| l =~ /^\s*nuget \w+/ }
+      to_install.map! { |d| d.match(/nuget (\S+)/)[1] }
+
+      File.open("paket.unity3d.references", "w") do |f|
+        to_install.each { |dep| f.puts(dep) }
+      end
+    end
   end
 end
