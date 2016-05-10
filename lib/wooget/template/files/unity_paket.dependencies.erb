@@ -1,5 +1,5 @@
-//public nuget repo
-source https://nuget.org/api/v2
+//remove the below line if you want to manually manage your paket.unity3d.references file
+//[!automanage!]
 
 //legacy wooga repo
 source https://wooga.artifactoryonline.com/wooga/api/nuget/nuget-private username: "%USERNAME%" password: "%PASSWORD%"
@@ -8,5 +8,8 @@ source https://wooga.artifactoryonline.com/wooga/api/nuget/nuget-private usernam
 source https://wooga.artifactoryonline.com/wooga/api/nuget/sdk-main username: "%USERNAME%" password: "%PASSWORD%"
 source https://wooga.artifactoryonline.com/wooga/api/nuget/sdk-universe username: "%USERNAME%" password: "%PASSWORD%"
 
-nuget NUnit ~> 2
-nuget NUnit.Runners ~> 2
+//public nuget repo
+source https://nuget.org/api/v2
+
+//nuget Wooga.Tracking.Unity3D.Source
+//nuget Wooga.VSCode

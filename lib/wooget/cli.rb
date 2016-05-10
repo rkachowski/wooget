@@ -5,6 +5,7 @@ module Wooget
   class CLI < Thor
     include Thor::Actions
     class_option :verbose, :desc => "Spit out tons of logging info", :aliases => "-v", :type => :boolean
+    add_runtime_options!
 
     def initialize *args
       super
@@ -32,7 +33,7 @@ module Wooget
       package_release_checks
       releaser = Releaser.new
       version = releaser.release options
-      puts "#{version} released successfully to #{Wooget.repo}"
+      p "#{version} released successfully to #{Wooget.repo}"
     end
 
     option :repo, desc: "Which repo to use"
@@ -46,7 +47,7 @@ module Wooget
 
       releaser = Releaser.new
       version = releaser.prerelease options
-      puts "#{version} released successfully to #{Wooget.repo}"
+      p "#{version} released successfully to #{Wooget.repo}"
     end
 
     desc "test", "run tests on package in current dir"
@@ -77,7 +78,7 @@ module Wooget
       else
         abort "Unity project not found in current directory"
       end
-      puts "Installed!"
+      p "Installed!"
     end
 
     option :force, desc: "Forces the download and reinstallation of all packages.", aliases: "-f", type: :boolean, default: false
@@ -90,20 +91,20 @@ module Wooget
       else
         abort "Unity project not found in current directory"
       end
-      puts "Updated!"
+      p "Updated!"
     end
 
-    desc "setup", "setup environment for wooget usage"
+    desc "bootstrap", "setup environment / project for wooget usage"
 
-    def setup
+    def bootstrap
       assert_dependencies
-      puts "Dependencies OK"
+      p "Dependencies OK"
       load_config
-      puts "Config OK"
+      p "Config OK"
 
       if Util.is_a_unity_project_dir Dir.pwd
-        puts "Unity project detected - Checking setup"
-
+        p "Unity project detected - Checking setup"
+        Wooget::Unity.new.bootstrap
       end
     end
 
@@ -152,6 +153,10 @@ module Wooget
     def package_release_checks
       assert_package_dir
       load_config
+    end
+
+    def p msg
+      say msg unless options[:quiet]
     end
   end
 end
