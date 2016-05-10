@@ -72,7 +72,7 @@ module Wooget
     desc "install", "install packages into this unity project"
     def install(package=nil)
       load_config
-      
+
       if Util.is_a_unity_project_dir(Dir.pwd) or Util.is_a_wooget_package_dir(Dir.pwd)
         if package and Util.is_a_unity_project_dir(Dir.pwd)
           Wooget::Unity.new.install package

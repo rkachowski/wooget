@@ -41,8 +41,8 @@ module Wooget
       package_name = File.basename(Dir.getwd)+"."+version
 
       #if we find a csproj.paket.template file then we need to build a binary release
-      `find . -name "*csproj.paket.template"`
-      needs_dll_build = $?.exitstatus == 0
+      binary_templates = `find . -name "*csproj.paket.template" | wc -l`.to_i
+      needs_dll_build = binary_templates > 0
 
       Util.build if needs_dll_build
 
