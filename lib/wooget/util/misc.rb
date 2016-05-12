@@ -5,14 +5,14 @@ module Wooget
     end
 
     def self.is_a_wooget_package_dir path
-      contents = Dir["*"]
-
+      contents = Dir[File.join(path,"*")]
+      contents.map! {|c| File.basename(c) }
       contents.include?("paket.dependencies") and contents.include?("RELEASE_NOTES.md")
     end
 
     def self.is_a_unity_project_dir path
-      contents = Dir["*"]
-
+      contents = Dir[File.join(path,"*")]
+      contents.map! {|c| File.basename(c) }
       contents.include?("Assets") and contents.include?("ProjectSettings")
     end
 
