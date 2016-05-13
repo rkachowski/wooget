@@ -25,6 +25,10 @@ module Wooget
     @@log
   end
 
+  def self.log= log
+    @@log = log
+  end
+
   def self.credentials
     @@credentials
   end
