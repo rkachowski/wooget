@@ -21,7 +21,7 @@ module Wooget
     end
 
     def install package
-      unless Util.file_contains? "paket.dependencies", package
+      unless Util.file_contains? "paket.dependencies", "nuget #{package}"
         `echo 'nuget #{package}' >> paket.dependencies`
       end
 
