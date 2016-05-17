@@ -22,7 +22,7 @@ module Wooget
 
     def install package
       unless Util.file_contains? "paket.dependencies", "nuget #{package}"
-        `echo 'nuget #{package}' >> paket.dependencies`
+        `echo '\nnuget #{package}' >> paket.dependencies`
       end
 
       generate_references
