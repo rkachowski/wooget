@@ -1,3 +1,5 @@
+require 'pty'
+
 module Wooget
   module Util
     def self.author
@@ -17,9 +19,24 @@ module Wooget
     end
 
     def self.run_cmd cmd
-      Wooget.log.debug "Running #{cmd}"
-      result = `#{cmd}`
-      Wooget.log.debug "Output: #{result}"
+      Wooget.log.debug "Running `#{cmd}`"
+      result = ""
+
+      begin
+        PTY.spawn(cmd) do |stdout, stdin, pid|
+          begin
+            stdout.each do |line|
+              result << line.uncolorize
+              Wooget.no_status_log line.uncolorize
+            end
+          rescue Errno::EIO
+            #This means the process has finished giving output
+          end
+        end
+      rescue PTY::ChildExited
+        #Child process exited
+      end
+
       result
     end
 
@@ -55,5 +72,17 @@ module Wooget
       build_log = run_cmd "xbuild #{sln} /p:Configuration=Release"
       abort "Build Failure: #{build_log}" unless $?.exitstatus == 0
     end
+  end
+end
+
+class String
+  REGEXP_PATTERN = /\033\[([0-9]+);([0-9]+);([0-9]+)m(.+?)\033\[0m|([^\033]+)/m
+
+  def uncolorize
+    result = self.scan(REGEXP_PATTERN).inject("") do |str, match|
+      str << (match[3] || match[4])
+    end
+
+    result.gsub(/\[[0-9]+m/, '')
   end
 end

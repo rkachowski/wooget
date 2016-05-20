@@ -17,6 +17,10 @@ require 'logger'
 module Wooget
   @@log = Logger.new(STDOUT)
   @@log.level = Logger::Severity::ERROR
+  @@log.formatter = proc do |severity, datetime, progname, msg|
+    msg = msg + "\n" unless msg.end_with? "\n"
+    msg.start_with?("[quiet]") ? "#{msg.sub("[quiet]","")}" :  "[#{severity} #{datetime}] : #{msg}"
+  end
 
   @@credentials = {username: "", password: ""}
   @@repos = {:default => "legacy"}
@@ -31,6 +35,10 @@ module Wooget
 
   def self.credentials
     @@credentials
+  end
+
+  def self.no_status_log msg
+    @@log.debug "[quiet]"+msg
   end
 
   def self.repos
