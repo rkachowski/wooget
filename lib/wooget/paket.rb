@@ -27,19 +27,28 @@ module Wooget
     end
 
     def self.paket_commands commands={}
-      reason = Util.run_cmd "#{env_vars} mono #{path} #{commands[:paket]} #{"--force" if commands[:force]}"
-      unless $?.exitstatus == 0
+      reason, exitstatus = Util.run_cmd "#{env_vars} mono #{path} #{commands[:paket]} #{"--force" if commands[:force]}"
+      unless exitstatus == 0
         abort "Paket install failed:\n #{reason}"
       end
 
       if Util.is_a_unity_project_dir(Dir.pwd)
         #TODO: generate unity3d references if applicable
 
-        reason = Util.run_cmd "#{env_vars} mono #{unity3d_path} #{commands[:paket_unity3d]}"
-        unless $?.exitstatus == 0
+        reason, exitstatus = Util.run_cmd "#{env_vars} mono #{unity3d_path} #{commands[:paket_unity3d]}"
+        unless exitstatus == 0
           abort "Paket.Unity3d install failed:\n #{reason}"
         end
       end
+    end
+
+    def self.installed? project_path, package
+      abort "Not a valid paket dir - #{project_path}" unless Util.is_a_unity_project_dir(project_path) or Util.is_a_wooget_package_dir(project_path)
+
+      lock_file = File.join(project_path, "paket.lock")
+      return false unless File.exists? lock_file
+
+      File.open(lock_file).read.lines.any? {|l| l =~ /\s*#{package}\s+/ }
     end
 
     def self.should_generate_unity3d_references

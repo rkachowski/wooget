@@ -21,7 +21,7 @@ module Wooget
     def self.run_cmd cmd
       Wooget.log.debug "Running `#{cmd}`"
       result = ""
-
+      exit_status = -1
       begin
         PTY.spawn(cmd) do |stdout, stdin, pid|
           begin
@@ -31,13 +31,16 @@ module Wooget
             end
           rescue Errno::EIO
             #This means the process has finished giving output
+          ensure
+            Process.wait(pid)
           end
         end
-      rescue PTY::ChildExited
+      rescue PTY::ChildExited => e
         #Child process exited
       end
 
-      result
+      exit_status = $?.exitstatus
+      [result, exit_status]
     end
 
     def self.run_tests
@@ -54,7 +57,8 @@ module Wooget
 
         #run any test assemblies with nunit console
         Dir[File.join(tmp_dir, "*Tests*.dll")].each do |assembly|
-          puts run_cmd("mono #{nunit} #{assembly} -nologo")
+          stdout, _ = run_cmd("mono #{nunit} #{assembly} -nologo")
+          puts stdout
         end
       end
     end
@@ -69,8 +73,8 @@ module Wooget
       sln = `find . -name *.sln`.chomp
       abort "Can't find sln file for building test artifacts" unless sln.length > 4
 
-      build_log = run_cmd "xbuild #{sln} /p:Configuration=Release"
-      abort "Build Failure: #{build_log}" unless $?.exitstatus == 0
+      build_log, exitstatus = run_cmd "xbuild #{sln} /p:Configuration=Release"
+      abort "Build Failure: #{build_log}" unless exitstatus == 0
     end
   end
 end
