@@ -26,8 +26,9 @@ module Wooget
       "USERNAME=#{Wooget.credentials[:username]} PASSWORD=#{Wooget.credentials[:password]}"
     end
 
-    def self.paket_commands commands={}
-      reason, exitstatus = Util.run_cmd "#{env_vars} mono #{path} #{commands[:paket]} #{"--force" if commands[:force]}"
+    def self.paket_commands options={}
+      cmd = "#{env_vars} mono #{path} #{options[:paket]} #{"--force" if options[:force]}"
+      reason, exitstatus = Util.run_cmd(cmd) { |log| Wooget.no_status_log log}
       unless exitstatus == 0
         abort "Paket install failed:\n #{reason}"
       end
@@ -35,7 +36,8 @@ module Wooget
       if Util.is_a_unity_project_dir(Dir.pwd)
         #TODO: generate unity3d references if applicable
 
-        reason, exitstatus = Util.run_cmd "#{env_vars} mono #{unity3d_path} #{commands[:paket_unity3d]}"
+        cmd = "#{env_vars} mono #{unity3d_path} #{options[:paket_unity3d]}"
+        reason, exitstatus = Util.run_cmd(cmd) { |log| Wooget.no_status_log log}
         unless exitstatus == 0
           abort "Paket.Unity3d install failed:\n #{reason}"
         end
@@ -57,11 +59,13 @@ module Wooget
     end
 
     def self.pack options
-      Util.run_cmd "#{env_vars} mono #{path} pack output #{options[:output]} version #{options[:version]} releaseNotes '#{options[:release_notes]}' templatefile #{options[:template]}"
+      pack_cmd = "#{env_vars} mono #{path} pack output #{options[:output]} version #{options[:version]} releaseNotes '#{options[:release_notes]}' templatefile #{options[:template]}"
+      Util.run_cmd(pack_cmd) { |log| Wooget.no_status_log log}
     end
 
     def self.push options
-      Util.run_cmd "#{env_vars} nugetkey=#{options[:auth]} mono #{path} push url #{options[:url]} file #{options[:package]}"
+      push_cmd = "#{env_vars} nugetkey=#{options[:auth]} mono #{path} push url #{options[:url]} file #{options[:package]}"
+      Util.run_cmd(push_cmd)  { |log| Wooget.no_status_log log}
      end
 
     def self.path

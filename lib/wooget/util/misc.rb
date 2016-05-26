@@ -20,14 +20,15 @@ module Wooget
 
     def self.run_cmd cmd
       Wooget.log.debug "Running `#{cmd}`"
-      result = ""
-      exit_status = -1
+
+      result = []
+
       begin
         PTY.spawn(cmd) do |stdout, stdin, pid|
           begin
             stdout.each do |line|
               result << line.uncolorize
-              Wooget.no_status_log line.uncolorize
+              yield line if block_given?
             end
           rescue Errno::EIO
             #This means the process has finished giving output
@@ -37,6 +38,7 @@ module Wooget
         end
       rescue PTY::ChildExited => e
         #Child process exited
+
       end
 
       exit_status = $?.exitstatus
@@ -57,8 +59,7 @@ module Wooget
 
         #run any test assemblies with nunit console
         Dir[File.join(tmp_dir, "*Tests*.dll")].each do |assembly|
-          stdout, _ = run_cmd("mono #{nunit} #{assembly} -nologo")
-          puts stdout
+          stdout, _ = run_cmd("mono #{nunit} #{assembly} -nologo") { |log| Wooget.no_status_log log}
         end
       end
     end
@@ -82,11 +83,13 @@ end
 class String
   REGEXP_PATTERN = /\033\[([0-9]+);([0-9]+);([0-9]+)m(.+?)\033\[0m|([^\033]+)/m
 
+  #get rid of goddamn ansi control codes
   def uncolorize
     result = self.scan(REGEXP_PATTERN).inject("") do |str, match|
       str << (match[3] || match[4])
     end
 
-    result.gsub(/\[[0-9]+m/, '')
+    #more ansi control codes that the above doesn't pickup
+    result.gsub(/\[(?:[A-Z0-9]{1,2}[nmKM]?)|\[(?:\?.*[=<>])|(?:;\d+[nmKM]?)/, '')
   end
 end

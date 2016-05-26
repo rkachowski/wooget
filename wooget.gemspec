@@ -18,6 +18,7 @@ Gem::Specification.new do |gem|
 
   gem.add_runtime_dependency "thor", "~> 0.19"
   gem.add_runtime_dependency "curb", "~> 0.8"
+
   gem.add_development_dependency "pry-byebug", "3.1.0"
   gem.add_development_dependency "rake", "10.5.0"
 

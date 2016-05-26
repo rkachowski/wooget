@@ -38,7 +38,7 @@ module Wooget
   end
 
   def self.no_status_log msg
-    @@log.debug "[quiet]"+msg
+    @@log.debug "[quiet]"+msg.uncolorize
   end
 
   def self.repos
