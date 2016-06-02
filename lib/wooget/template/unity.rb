@@ -23,10 +23,15 @@ module Wooget
       create_file File.join(options[:path],"paket.unity3d.references")
     end
 
+
+    #todo: move things below into paket.rb and convert paket.rb to be thor task
+
     desc "install PACKAGE_ID", "Install specific package into unity project"
     def install package
       unless Util.file_contains? File.join(options[:path],"paket.dependencies"), "nuget #{package}"
-        `echo '\nnuget #{package}' >> #{File.join(options[:path],"paket.dependencies")}`
+
+        append_to_file File.join(options[:path],"paket.dependencies"),"\nnuget #{package}"
+
       end
 
       generate_references

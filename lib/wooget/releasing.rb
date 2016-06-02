@@ -1,7 +1,7 @@
 require 'fileutils'
 
 module Wooget
-  class Releaser < Thor::Group
+  class Releaser < Thor
 
     #publish in prerelease mode
     def prerelease options={}

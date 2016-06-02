@@ -4,7 +4,7 @@ module Wooget
   #
   #Essential project files for packaging
   #
-  class Project < Thor::Group
+  class Project < Thor
     attr_reader :options
     include Thor::Actions
     add_runtime_options!

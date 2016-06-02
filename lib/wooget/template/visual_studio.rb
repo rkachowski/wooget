@@ -1,6 +1,6 @@
 module Wooget
   module Templates
-    class VisualStudio  < Thor::Group
+    class VisualStudio  < Thor
       attr_accessor :options
       include Thor::Actions
       add_runtime_options!

@@ -1,14 +1,17 @@
 module Wooget
   class Paket
+    @@paket_path = File.expand_path(File.join(__FILE__, "..", "third_party", "paket.exe"))
+    @@unity3d_path = File.expand_path(File.join(__FILE__, "..", "third_party", "paket.unity3d.exe"))
+
     def self.execute args
-      cmd = "mono #{path} #{args}"
+      cmd = "mono #{ @@paket_path} #{args}"
       Wooget.log.debug "Running #{cmd}"
 
       exec cmd
     end
 
     def self.unity3d_execute args
-      cmd = "mono #{unity3d_path} #{args}"
+      cmd = "mono #{@@unity3d_path} #{args}"
       Wooget.log.debug "Running #{cmd}"
 
       exec cmd
@@ -17,8 +20,8 @@ module Wooget
     def self.install options={}
       options[:path] ||= Dir.pwd
 
-      commands = ["#{env_vars} mono #{path} install #{"--force" if options[:force]}"]
-      commands << "#{env_vars} mono #{unity3d_path} install" if Util.is_a_unity_project_dir(options[:path])
+      commands = ["#{env_vars} mono #{@@paket_path} install #{"--force" if options[:force]}"]
+      commands << "#{env_vars} mono #{@@unity3d_path} install" if Util.is_a_unity_project_dir(options[:path])
 
       commands.each do |cmd|
         reason, exitstatus = Util.run_cmd(cmd, options[:path]) { |log| Wooget.no_status_log log }
@@ -32,8 +35,8 @@ module Wooget
     def self.update options={}
       options[:path] ||= Dir.pwd
 
-      commands = ["#{env_vars} mono #{path} update #{"--force" if options[:force]}"]
-      commands << "#{env_vars} mono #{unity3d_path} install" if Util.is_a_unity_project_dir(options[:path])
+      commands = ["#{env_vars} mono #{@@paket_path} update #{"--force" if options[:force]}"]
+      commands << "#{env_vars} mono #{@@unity3d_path} install" if Util.is_a_unity_project_dir(options[:path])
 
       commands.each do |cmd|
         reason, exitstatus = Util.run_cmd(cmd, options[:path]) { |log| Wooget.no_status_log log }
@@ -59,25 +62,19 @@ module Wooget
 
     def self.should_generate_unity3d_references path=Dir.pwd
       #if the file doesnt exist, or it does exist but contains "[!automanage!]" then we can rewrite it
-      !File.exists?(File.join(path,"paket.unity3d.references")) or (File.readlines(File.join(path,"paket.dependencies")).grep(/\[!automanage!\]/).count > 0)
+      !File.exists?(File.join(path, "paket.unity3d.references")) or (File.readlines(File.join(path, "paket.dependencies")).grep(/\[!automanage!\]/).count > 0)
     end
 
     def self.pack options
-      pack_cmd = "#{env_vars} mono #{path} pack output #{options[:output]} version #{options[:version]} releaseNotes '#{options[:release_notes]}' templatefile #{options[:template]}"
+      pack_cmd = "#{env_vars} mono #{@@paket_path} pack output #{options[:output]} version #{options[:version]} releaseNotes '#{options[:release_notes]}' templatefile #{options[:template]}"
       Util.run_cmd(pack_cmd) { |log| Wooget.no_status_log log }
     end
 
     def self.push options
-      push_cmd = "#{env_vars} nugetkey=#{options[:auth]} mono #{path} push url #{options[:url]} file #{options[:package]}"
+      push_cmd = "#{env_vars} nugetkey=#{options[:auth]} mono #{@@paket_path} push url #{options[:url]} file #{options[:package]}"
       Util.run_cmd(push_cmd) { |log| Wooget.no_status_log log }
     end
 
-    def self.path
-      File.expand_path(File.join(__FILE__, "..", "third_party", "paket.exe"))
-    end
 
-    def self.unity3d_path
-      File.expand_path(File.join(__FILE__, "..", "third_party", "paket.unity3d.exe"))
-    end
   end
 end

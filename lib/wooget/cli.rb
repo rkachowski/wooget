@@ -5,6 +5,8 @@ module Wooget
   class CLI < Thor
     include Thor::Actions
     class_option :verbose, :desc => "Spit out tons of logging info", :aliases => "-v", :type => :boolean
+    class_option :path, desc: "Path to the project you want to install things into", default: Dir.pwd
+
     add_runtime_options!
 
     def initialize *args
@@ -69,7 +71,6 @@ module Wooget
     end
 
     option :force, desc: "Forces the download and reinstallation of all packages.", aliases: "-f", type: :boolean, default: false
-    option :path, desc: "Path to the project you want to install things into", default: Dir.pwd
     desc "install", "install packages into this unity project"
     def install(package=nil)
       load_config
@@ -81,7 +82,7 @@ module Wooget
 
         Paket.install options
       else
-        abort "Unity project not found in current directory"
+        abort "Project not found at #{options[:path]}"
       end
       p "Installed!"
     end
@@ -91,23 +92,22 @@ module Wooget
     def update(package=nil)
       load_config
 
-      if Util.is_a_unity_project_dir(Dir.pwd) or Util.is_a_wooget_package_dir(Dir.pwd)
+      if Util.is_a_unity_project_dir(options[:path]) or Util.is_a_wooget_package_dir(options[:path])
         Paket.update options
       else
-        abort "Unity project not found in current directory"
+        abort "Project not found at #{options[:path]}"
       end
       p "Updated!"
     end
 
     desc "bootstrap", "setup environment / project for wooget usage"
-
     def bootstrap
       assert_dependencies
       p "Dependencies OK"
       load_config
       p "Config OK"
 
-      if Util.is_a_unity_project_dir Dir.pwd
+      if Util.is_a_unity_project_dir options[:path]
         p "Unity project detected - Checking setup"
         Wooget::Unity.new.bootstrap
       end
@@ -145,7 +145,7 @@ module Wooget
     end
 
     def assert_package_dir
-      abort "#{Dir.pwd} doesn't appear to be a wooget package dir" unless Util.is_a_wooget_package_dir Dir.pwd
+      abort "#{ options[:path]} doesn't appear to be a wooget package dir" unless Util.is_a_wooget_package_dir  options[:path]
     end
 
     def assert_dependencies
