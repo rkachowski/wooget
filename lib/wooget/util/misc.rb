@@ -18,31 +18,33 @@ module Wooget
       contents.include?("Assets") and contents.include?("ProjectSettings")
     end
 
-    def self.run_cmd cmd
+    def self.run_cmd cmd, path=Dir.pwd
       Wooget.log.debug "Running `#{cmd}`"
 
-      result = []
+      cmd_output = []
 
-      begin
-        PTY.spawn(cmd) do |stdout, stdin, pid|
-          begin
-            stdout.each do |line|
-              result << line.uncolorize
-              yield line if block_given?
+      Dir.chdir(path) do
+        begin
+          PTY.spawn(cmd) do |stdout, stdin, pid|
+            begin
+              stdout.each do |line|
+                cmd_output << line.uncolorize
+                yield line if block_given?
+              end
+            rescue Errno::EIO
+              #This means the process has finished giving output
+            ensure
+              Process.wait(pid)
             end
-          rescue Errno::EIO
-            #This means the process has finished giving output
-          ensure
-            Process.wait(pid)
           end
-        end
-      rescue PTY::ChildExited => e
-        #Child process exited
+        rescue PTY::ChildExited => e
+          #Child process exited
 
+        end
       end
 
       exit_status = $?.exitstatus
-      [result, exit_status]
+      [cmd_output, exit_status]
     end
 
     def self.run_tests

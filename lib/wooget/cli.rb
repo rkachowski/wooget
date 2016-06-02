@@ -69,13 +69,14 @@ module Wooget
     end
 
     option :force, desc: "Forces the download and reinstallation of all packages.", aliases: "-f", type: :boolean, default: false
+    option :path, desc: "Path to the project you want to install things into", default: Dir.pwd
     desc "install", "install packages into this unity project"
     def install(package=nil)
       load_config
 
-      if Util.is_a_unity_project_dir(Dir.pwd) or Util.is_a_wooget_package_dir(Dir.pwd)
-        if package and Util.is_a_unity_project_dir(Dir.pwd)
-          Wooget::Unity.new.install package
+      if Util.is_a_unity_project_dir(options[:path]) or Util.is_a_wooget_package_dir(options[:path])
+        if package and Util.is_a_unity_project_dir(options[:path])
+          invoke "wooget:unity:install", [package], options
         end
 
         Paket.install options
