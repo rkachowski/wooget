@@ -69,7 +69,7 @@ module Wooget
 
     def self.pack options
       pack_cmd = "#{env_vars} mono #{@@paket_path} pack output #{options[:output]} version #{options[:version]} releaseNotes \"#{options[:release_notes]}\" templatefile #{options[:template]}"
-      Util.run_cmd(pack_cmd) { |log| Wooget.no_status_log log }
+      Util.run_cmd(pack_cmd, options[:path] || Dir.pwd) { |log| Wooget.no_status_log log }
     end
 
     def self.push auth, url, package

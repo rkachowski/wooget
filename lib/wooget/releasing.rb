@@ -14,7 +14,7 @@ module Wooget
     desc "build", "build the package and create .nupkg files"
 
     def build
-      build_info = BuildInfo.new options[:templates], options[:output_dir], options[:version], options[:release_notes]
+      build_info = BuildInfo.new options[:templates], options[:output_dir], options[:version], options[:release_notes], options[:path]
       unless build_info.valid?
         Wooget.log.error "Invalid build options - #{build_info.invalid_reason}"
         return
@@ -89,7 +89,15 @@ module Wooget
         update_metadata build_info.version
 
         build_info.template_files.each do |t|
-          stdout, status = Paket.pack output: options[:output_dir], version: build_info.version, template: t, release_notes: build_info.release_notes.shellescape
+          pack_options = {
+              output: options[:output_dir],
+              version: build_info.version,
+              template: t,
+              release_notes: build_info.release_notes.shellescape,
+              path:build_info.project_root
+          }
+
+          stdout, status = Paket.pack pack_options
           unless status == 0
             Wooget.log.error "Pack error: #{stdout.join}"
             return :fail
@@ -243,9 +251,9 @@ module Wooget
   end
 
   class BuildInfo
-    attr_accessor :template_files, :output_dir, :version, :release_notes
+    attr_accessor :template_files, :output_dir, :version, :release_notes, :project_root
 
-    def initialize template_files=[], output_dir=Dir.pwd, version="919.919.919", release_notes="no notes!"
+    def initialize template_files=[], output_dir=Dir.pwd, version="919.919.919", release_notes="no notes!", project_root=Dir.pwd
 
       @template_files = template_files
       @output_dir = output_dir
@@ -253,11 +261,12 @@ module Wooget
       @release_notes = release_notes
 
       @invalid_reason = []
+      @project_root = project_root
     end
 
     def package_names
       @template_files.map do |template|
-        package_id = File.read(template).scan(/id (.*)/).flatten.first
+        package_id = File.read(File.join(project_root, template)).scan(/id (.*)/).flatten.first
         [package_id, @version, "nupkg"].join "."
       end
     end

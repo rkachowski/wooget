@@ -1,6 +1,8 @@
 require 'thor'
 require 'fileutils'
 require 'json'
+require 'pathname'
+
 module Wooget
   class CLI < Thor
     include Thor::Actions
@@ -29,17 +31,30 @@ module Wooget
     desc "build", "build the packages in the current dir"
     option :version, desc:"Version number to prepend to release notes", type: :string, required: true
     option :output, desc: "Dir to place built packages", type: :string, default: File.join(Dir.pwd,"bin")
-    option :release_notes, desc: "notes", type: :string, default: ""
+    option :release_notes, desc: "Release notes to include in the package", type: :string, default: ""
     def build
       package_release_checks
 
-      Wooget.log.info "Preinstall before build"
-      invoke "install", [], quiet:true
-      Wooget.log.info "Running tests"
-      invoke "test", [], {}
+      p "Preinstall before build"
+      invoke "install", [], quiet:true, path:options[:path]
 
+      p "Running tests"
+      invoke "test", [], path:options[:path]
+
+      #templates refs have to be relative to the working dir / project root for paket.exe
+      path = Pathname.new(options[:path])
       templates = Dir.glob(File.join(options[:path],"**/*paket.template"))
-      built_packages = invoke "wooget:packager:build", [], output_dir: options[:output], version:options[:version], release_notes: options[:release_notes], templates: templates
+      templates.map! { |t| Pathname.new(t).relative_path_from(path).to_s}
+
+      build_options = {
+          output_dir: options[:output],
+          version:options[:version],
+          release_notes: options[:release_notes],
+          templates: templates,
+          path: options[:path]
+      }
+
+      built_packages = invoke "wooget:packager:build", [], build_options
 
       p "#{built_packages.join " & "} built to #{File.expand_path options[:output]}" if built_packages
     end
