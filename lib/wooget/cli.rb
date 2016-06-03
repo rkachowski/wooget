@@ -34,11 +34,10 @@ module Wooget
 
       Wooget.log.info "Preinstall before build"
       invoke "install", [], quiet:true
-
+      Wooget.log.info "Running tests"
       invoke "test"
 
-      #run tests
-      #package
+      #run build task
     end
 
     option :repo, desc: "Which repo to use"
@@ -48,9 +47,9 @@ module Wooget
 
     def release
       package_release_checks
-      releaser = Releaser.new
-      version = releaser.release options
-      p "#{version} released successfully to #{Wooget.repo}"
+      releaser = Packager.new
+      released_packages = releaser.release options
+      p "#{released_packages.join " & "} released successfully to #{Wooget.repo}" if released_packages
     end
 
     option :repo, desc: "Which repo to use"
@@ -62,9 +61,9 @@ module Wooget
     def prerelease
       package_release_checks
 
-      releaser = Releaser.new
-      version = releaser.prerelease options
-      p "#{version} released successfully to #{Wooget.repo}"
+      releaser = Packager.new
+      released_packages = releaser.prerelease options
+      p "#{released_packages.join " & "} prereleased successfully to #{Wooget.repo}" if released_packages
     end
 
     desc "test", "run package tests in mono"
@@ -196,7 +195,7 @@ module Wooget
 
     def assert_dependencies
       %w( mono ).each do |dep|
-        `which #{dep}`
+        `type #{dep}`
         abort "Couldn't find #{dep} - please install!" unless $?.exitstatus == 0
       end
     end

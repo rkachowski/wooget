@@ -68,12 +68,12 @@ module Wooget
     end
 
     def self.pack options
-      pack_cmd = "#{env_vars} mono #{@@paket_path} pack output #{options[:output]} version #{options[:version]} releaseNotes '#{options[:release_notes]}' templatefile #{options[:template]}"
+      pack_cmd = "#{env_vars} mono #{@@paket_path} pack output #{options[:output]} version #{options[:version]} releaseNotes \"#{options[:release_notes]}\" templatefile #{options[:template]}"
       Util.run_cmd(pack_cmd) { |log| Wooget.no_status_log log }
     end
 
-    def self.push options
-      push_cmd = "#{env_vars} nugetkey=#{options[:auth]} mono #{@@paket_path} push url #{options[:url]} file #{options[:package]}"
+    def self.push auth, url, package
+      push_cmd = "echo #{env_vars} nugetkey=#{auth} mono #{@@paket_path} push url #{url} file #{package}"
       Util.run_cmd(push_cmd) { |log| Wooget.no_status_log log }
     end
 

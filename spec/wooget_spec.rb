@@ -37,7 +37,7 @@ describe Wooget do
 
 
         Dir.chdir("Prerelease.Package") do
-          Wooget::Releaser.new.prerelease :no_push => true, :quiet => true
+          Wooget::Packager.new.prerelease :no_push => true, :quiet => true
         end
 
         template_contents = File.open(File.join("Prerelease.Package", "paket.template")).read
@@ -59,7 +59,7 @@ describe Wooget do
 
         assert File.exists?("TestFile_meta.cs"), "Test file should have been created"
 
-        releaser = Wooget::Releaser.new
+        releaser = Wooget::Packager.new
         releaser.update_metadata "1.2.3-testversion"
 
         file_contents = File.open("TestFile_meta.cs").read

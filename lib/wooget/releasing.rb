@@ -1,7 +1,30 @@
 require 'fileutils'
+require 'pry-byebug'
+require 'shellwords'
 
 module Wooget
-  class Releaser < Thor
+  class Packager < Thor
+
+    class_option :path, desc: "Base path of the package we are working on", default: Dir.pwd
+    class_option :output_dir, desc: "Destination for artifacts", default: File.join(Dir.pwd, "bin")
+
+    option :templates, desc: "Template files you want to build", type: :array, required: true
+    option :version, desc: "Version to set packages to", type: :string, required: true
+    option :release_notes, desc: "Release notes for packages", type: :string, required: true
+    desc "build", "build the package and create .nupkg files"
+
+    def build
+      build_info = BuildInfo.new options[:templates], options[:output_dir], options[:version], options[:release_notes]
+      unless build_info.valid?
+        Wooget.log.error "Invalid build options - #{build_info.invalid_reason}"
+        return
+      end
+
+      Dir.mkdir(options[:output_dir]) unless Dir.exists? options[:output_dir]
+
+      build_packages build_info
+    end
+
     no_commands do
 
       #publish in prerelease mode
@@ -27,63 +50,53 @@ module Wooget
       end
 
       #build and push packages
-      def publish options={}
-        if options[:preconditions]
-          fail_msg = options[:preconditions].call
-          abort "#{options[:stage]} error: #{fail_msg}" if fail_msg
+      def publish args={}
+        if args[:preconditions]
+          fail_msg = args[:preconditions].call
+          abort "#{args[:stage]} error: #{fail_msg}" if fail_msg
         end
-        options[:prebuild].call if options[:prebuild]
+        args[:prebuild].call if args[:prebuild]
 
         clean
 
-        package_name = File.basename(Dir.getwd)+"."+version
+        build_info = get_build_info_from_file
+        build_result = build_packages(build_info)
+        return if build_result == :fail
 
-        create_package(options)
-        push(options, package_name)
+        built_packages = build_info.package_names.map {|p| File.join(options[:output_dir],p)}
+        return build_info.package_names unless args[:push]
 
-        package_name
+        built_packages.each do |p|
+          if args[:confirm]
+            next unless yes?("Release #{p} to #{Wooget.repo}?")
+          end
+
+          auth = "#{Wooget.credentials[:username]}:#{Wooget.credentials[:password]}"
+
+          Paket.push auth, Wooget.repo, p
+        end
+
+        build_info.package_names
       end
 
-      def create_package(options)
-        package_options = get_package_details
-        version = package_options[:version]
+      def build_packages(build_info)
         #if we find a csproj.paket.template file then we need to build a binary release
-        binary_templates = `find . -name "*csproj.paket.template" | wc -l`.to_i
-        needs_dll_build = binary_templates > 0
+        needs_dll_build = build_info.template_files.any? { |t| t.match("csproj.paket.template") }
 
         Util.build if needs_dll_build
 
-        update_metadata version
+        update_metadata build_info.version
 
-        package_options[:templates].each do |t|
-          stdout, status = Paket.pack package_options.merge(template: t)
-          abort "#{options[:stage]} error: paket pack fail" unless status == 0
-        end
-      end
-
-      def push(options, package_name)
-        unless options[:push]
-          puts "Skipping push - built #{package_name} successfully" unless options[:quiet]
-          return
-        end
-
-        push_options = get_push_options
-
-        push_options[:packages].each do |package|
-          if options[:confirm]
-            if yes?("Release #{package} to #{Wooget.repo}?")
-              Paket.push push_options.merge(package: package)
-              abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
-            else
-              abort "Cancelled remote push"
-            end
-          else
-            Paket.push push_options.merge(package: package)
-            abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
+        build_info.template_files.each do |t|
+          stdout, status = Paket.pack output: options[:output_dir], version: build_info.version, template: t, release_notes: build_info.release_notes.shellescape
+          unless status == 0
+            Wooget.log.error "Pack error: #{stdout.join}"
+            return :fail
           end
         end
-      end
 
+        nil
+      end
 
       def clean
         if Dir.exists? "bin"
@@ -109,28 +122,17 @@ module Wooget
         end
       end
     end
+
     private
 
 
-    def get_package_details
+    def get_build_info_from_file
 
       version, prerelease = get_version_from_release_notes
       version = version+"-"+prerelease unless prerelease.empty?
+      templates = Dir.glob(File.join(options[:path], "/**/*paket.template"))
 
-      {
-          :output => "bin",
-          :templates => `find . -name "*paket.template"`.split,
-          :version => version,
-          :release_notes => get_latest_release_notes
-      }
-    end
-
-    def get_push_options
-      {
-          :auth => "#{Wooget.credentials[:username]}:#{Wooget.credentials[:password]}",
-          :url => Wooget.repo,
-          :packages => Dir['bin/*.nupkg']
-      }
+      BuildInfo.new templates, options[:output_dir], version, get_latest_release_notes
     end
 
     #
@@ -221,7 +223,7 @@ module Wooget
 
     def get_latest_release_notes
       notes = []
-      File.open("RELEASE_NOTES.md").each do |line|
+      File.open(File.join(options[:path], "RELEASE_NOTES.md")).each do |line|
         break if line.empty? and notes.length > 0
 
         #include the line unless it's a version title
@@ -236,6 +238,47 @@ module Wooget
       required_files = %w(RELEASE_NOTES.md paket.template paket.dependencies paket.lock)
 
       required_files.all? { |required_file| dir_files.include? required_file }
+    end
+  end
+
+  class BuildInfo
+    attr_accessor :template_files, :output_dir, :version, :release_notes
+
+    def initialize template_files=[], output_dir=Dir.pwd, version="919.919.919", release_notes="no notes!"
+
+      @template_files = template_files
+      @output_dir = output_dir
+      @version = version
+      @release_notes = release_notes
+
+      @invalid_reason = []
+    end
+
+    def package_names
+      @template_files.map do |template|
+        package_id = File.read(template).scan(/id (.*)/).flatten.first
+        [package_id, @version, "nupkg"].join "."
+      end
+    end
+
+    def invalid_reason
+      @invalid_reason.join ", "
+    end
+
+    def valid?
+      valid = true
+
+      unless Util.valid_version_string? @version
+        @invalid_reason << "Invalid version string #{@version}"
+        valid = false
+      end
+
+      unless @template_files.length > 0
+        @invalid_reason << "No template files provided"
+        valid = false
+      end
+
+      valid
     end
   end
 end

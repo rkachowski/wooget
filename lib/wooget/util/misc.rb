@@ -58,6 +58,11 @@ module Wooget
       build_log, exitstatus = run_cmd "xbuild #{sln} /p:Configuration=Release"
       abort "Build Failure: #{build_log}" unless exitstatus == 0
     end
+
+    def self.valid_version_string? version
+      !version.match(/(\d+\.\d+\.\d+)-?(\w*)/).nil?
+    end
+
   end
 end
 
