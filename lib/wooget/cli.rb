@@ -27,8 +27,16 @@ module Wooget
     end
 
     desc "build", "build the packages in the current dir"
+    option :version, desc:"Version number to prepend to release notes", type: :string
+    option :output, desc: "Dir to place built packages", type: :string
     def build
-      #install
+      package_release_checks
+
+      Wooget.log.info "Preinstall before build"
+      invoke "install", [], quiet:true
+
+      invoke "test"
+
       #run tests
       #package
     end
@@ -59,10 +67,41 @@ module Wooget
       p "#{version} released successfully to #{Wooget.repo}"
     end
 
-    desc "test", "run tests on package in current dir"
+    desc "test", "run package tests in mono"
 
     def test
-      Util.run_tests
+      unless Util.is_a_wooget_package_dir(options[:path]) and Dir.exists?(File.join(options[:path],"tests"))
+        Wooget.log.error "Can't find a wooget package dir with tests at #{options[:path]}"
+        return
+      end
+
+      sln = Dir.glob(File.join(options[:path],"/**/*.sln")).first
+      if sln.nil? or sln.empty?
+        Wooget.log.error "Can't find sln file for building test artifacts"
+        return
+      end
+
+      nunit = Dir.glob(File.join(options[:path],"/**/nunit-console.exe")).first
+      if nunit.nil? or nunit.empty?
+        Wooget.log.error "Can't find nunit-console for running tests"
+        return
+      end
+
+
+      Dir.mktmpdir do |tmp_dir|
+        p "Building test assembly.."
+        stdout, status = Util.run_cmd("xbuild #{sln} /p:OutDir='#{tmp_dir}/'") { |log| Wooget.no_status_log log}
+        unless status == 0
+          Wooget.log.error "Build Test Failure"
+          Wooget.log.error stdout.join "\n"
+          return
+        end
+
+        Dir[File.join(tmp_dir, "*Tests*.dll")].each do |assembly|
+          _, status = Util.run_cmd("mono #{nunit} #{assembly} -nologo") { |log| p log}
+          p "Exit Status - #{status}"
+        end
+      end
     end
 
     desc "paket ARGS", "call bundled version of paket and pass args"

@@ -2,110 +2,113 @@ require 'fileutils'
 
 module Wooget
   class Releaser < Thor
+    no_commands do
 
-    #publish in prerelease mode
-    def prerelease options={}
-      prerelease_options = {
-          stage: "Prerelease",
-          preconditions: -> { check_prerelease_preconditions },
-          prebuild: -> { set_prerelease_dependencies }
-      }
+      #publish in prerelease mode
+      def prerelease options={}
+        prerelease_options = {
+            stage: "Prerelease",
+            preconditions: -> { check_prerelease_preconditions },
+            prebuild: -> { set_prerelease_dependencies }
+        }
 
-      publish options.merge(prerelease_options)
-    end
-
-    #publish in release mode
-    def release options={}
-      release_options = {
-          stage: "Release",
-          preconditions: -> { check_release_preconditions },
-          prebuild: -> { set_release_dependencies }
-      }
-
-      publish options.merge(release_options)
-    end
-
-    #build and push packages
-    def publish options={}
-      if options[:preconditions]
-        fail_msg = options[:preconditions].call
-        abort "#{options[:stage]} error: #{fail_msg}" if fail_msg
-      end
-      options[:prebuild].call if options[:prebuild]
-
-      clean
-
-      #build package
-      package_options = get_package_details
-      version = package_options[:version]
-      package_name = File.basename(Dir.getwd)+"."+version
-
-      #if we find a csproj.paket.template file then we need to build a binary release
-      binary_templates = `find . -name "*csproj.paket.template" | wc -l`.to_i
-      needs_dll_build = binary_templates > 0
-
-      Util.build if needs_dll_build
-
-      update_metadata version
-
-      package_options[:templates].each do |t|
-        Paket.pack package_options.merge(template: t)
-        abort "#{options[:stage]} error: paket pack fail" unless $?.exitstatus == 0
+        publish options.merge(prerelease_options)
       end
 
-      push(options, package_name)
+      #publish in release mode
+      def release options={}
+        release_options = {
+            stage: "Release",
+            preconditions: -> { check_release_preconditions },
+            prebuild: -> { set_release_dependencies }
+        }
 
-      package_name
-    end
-
-    def push(options, package_name)
-      unless options[:push]
-        puts "Skipping push - built #{package_name} successfully" unless options[:quiet]
-        return
+        publish options.merge(release_options)
       end
 
-      push_options = get_push_options
+      #build and push packages
+      def publish options={}
+        if options[:preconditions]
+          fail_msg = options[:preconditions].call
+          abort "#{options[:stage]} error: #{fail_msg}" if fail_msg
+        end
+        options[:prebuild].call if options[:prebuild]
 
-      push_options[:packages].each do |package|
-        if options[:confirm]
-          if yes?("Release #{package} to #{Wooget.repo}?")
+        clean
+
+        package_name = File.basename(Dir.getwd)+"."+version
+
+        create_package(options)
+        push(options, package_name)
+
+        package_name
+      end
+
+      def create_package(options)
+        package_options = get_package_details
+        version = package_options[:version]
+        #if we find a csproj.paket.template file then we need to build a binary release
+        binary_templates = `find . -name "*csproj.paket.template" | wc -l`.to_i
+        needs_dll_build = binary_templates > 0
+
+        Util.build if needs_dll_build
+
+        update_metadata version
+
+        package_options[:templates].each do |t|
+          stdout, status = Paket.pack package_options.merge(template: t)
+          abort "#{options[:stage]} error: paket pack fail" unless status == 0
+        end
+      end
+
+      def push(options, package_name)
+        unless options[:push]
+          puts "Skipping push - built #{package_name} successfully" unless options[:quiet]
+          return
+        end
+
+        push_options = get_push_options
+
+        push_options[:packages].each do |package|
+          if options[:confirm]
+            if yes?("Release #{package} to #{Wooget.repo}?")
+              Paket.push push_options.merge(package: package)
+              abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
+            else
+              abort "Cancelled remote push"
+            end
+          else
             Paket.push push_options.merge(package: package)
             abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
-          else
-            abort "Cancelled remote push"
           end
-        else
-          Paket.push push_options.merge(package: package)
-          abort "#{options[:stage]} error: paket push fail" unless $?.exitstatus == 0
+        end
+      end
+
+
+      def clean
+        if Dir.exists? "bin"
+          Wooget.log.debug "Cleaning bin dir"
+          FileUtils.rmtree "bin"
+        end
+      end
+
+      # update the client side tracking metadata with the latest version
+      def update_metadata new_version
+        meta_files = Dir.glob("**/*_meta.cs")
+
+        meta_files.each do |file|
+          file_contents = File.open(file).each_line.to_a
+          file_contents.map! do |line|
+            if line =~ /public static readonly string version/
+              "    public static readonly string version = \"#{new_version}\";\n"
+            else
+              line
+            end
+          end
+          File.open(file, "w") { |f| f << file_contents.join }
         end
       end
     end
-
-
-    def clean
-      if Dir.exists? "bin"
-        Wooget.log.debug "Cleaning bin dir"
-        FileUtils.rmtree "bin"
-      end
-    end
-
-    # update the client side tracking metadata with the latest version
-    def update_metadata new_version
-      meta_files = Dir.glob("**/*_meta.cs")
-
-      meta_files.each do |file|
-        file_contents = File.open(file).each_line.to_a
-        file_contents.map! do |line|
-          if line =~ /public static readonly string version/
-            "    public static readonly string version = \"#{new_version}\";\n"
-          else
-            line
-          end
-        end
-        File.open(file, "w") { |f| f << file_contents.join }
-      end
-    end
-
     private
 
 

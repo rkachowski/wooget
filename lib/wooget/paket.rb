@@ -60,9 +60,11 @@ module Wooget
       File.open(lock_file).read.lines.any? { |l| l =~ /\s*#{package}\s+/ }
     end
 
-    def self.should_generate_unity3d_references path=Dir.pwd
-      #if the file doesnt exist, or it does exist but contains "[!automanage!]" then we can rewrite it
-      !File.exists?(File.join(path, "paket.unity3d.references")) or (File.readlines(File.join(path, "paket.dependencies")).grep(/\[!automanage!\]/).count > 0)
+    def self.should_generate_unity3d_references? path=Dir.pwd
+      #if the references file doesnt exist, or it does exist and
+      # it contains the automanage tag then we can rewrite it
+      auto_manage_tag = "[!automanage!]"
+      !File.exists?(File.join(path, "paket.unity3d.references")) or (Util.file_contains? File.join(path, "paket.dependencies"), auto_manage_tag)
     end
 
     def self.pack options

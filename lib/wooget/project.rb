@@ -13,6 +13,7 @@ module Wooget
       File.join(File.dirname(__FILE__), "template", "files")
     end
 
+    desc "create package_name", "create a package with the provided id / name"
     def create package_name, options={}
       @options = {}.merge(options)
       @options[:author] ||= Util.author

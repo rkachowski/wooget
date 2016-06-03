@@ -9,6 +9,7 @@ module Wooget
         File.join(File.dirname(__FILE__),"files")
       end
 
+      desc "create_project options", "create a wooget package tree"
       def create_project options={}
         raise "name not provided" unless options[:name]
 

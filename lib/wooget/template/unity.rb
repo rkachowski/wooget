@@ -39,7 +39,7 @@ module Wooget
 
     desc "generate_references", "Generate the paket.unity3d.references file from paket.dependency contents"
     def generate_references
-      unless Paket.should_generate_unity3d_references options[:path]
+      unless Paket.should_generate_unity3d_references? options[:path]
         Wooget.log.debug "automanage tag not found - skipping `paket.unity3d.references` generation"
         return
       end

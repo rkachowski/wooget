@@ -47,29 +47,8 @@ module Wooget
       [cmd_output, exit_status]
     end
 
-    def self.run_tests
-      sln = `find . -name *.sln`.chomp
-      abort "Can't find sln file for building test artifacts" unless sln.length > 4
-
-      nunit = `find . -name nunit-console.exe`.chomp
-      abort "Can't find nunit-console for running tests" unless nunit.length > 4
-
-      Dir.mktmpdir do |tmp_dir|
-        #build tests
-        run_cmd "xbuild #{sln} /p:OutDir='#{tmp_dir}/'"
-        raise "Build Test Failure" unless $?.exitstatus == 0
-
-        #run any test assemblies with nunit console
-        Dir[File.join(tmp_dir, "*Tests*.dll")].each do |assembly|
-          stdout, _ = run_cmd("mono #{nunit} #{assembly} -nologo") { |log| Wooget.no_status_log log}
-        end
-      end
-    end
-
     def self.file_contains? filename, string
-      `grep -l '#{string}' '#{filename}'`
-
-      $?.exitstatus == 0
+      File.foreach(filename).grep(/#{Regexp.escape(string)}/).any?
     end
 
     def self.build
