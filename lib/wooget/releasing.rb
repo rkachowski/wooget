@@ -22,7 +22,8 @@ module Wooget
 
       Dir.mkdir(options[:output_dir]) unless Dir.exists? options[:output_dir]
 
-      build_packages build_info
+      result = build_packages build_info
+      build_info.package_names unless result == :fail
     end
 
     no_commands do

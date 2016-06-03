@@ -27,17 +27,21 @@ module Wooget
     end
 
     desc "build", "build the packages in the current dir"
-    option :version, desc:"Version number to prepend to release notes", type: :string
-    option :output, desc: "Dir to place built packages", type: :string
+    option :version, desc:"Version number to prepend to release notes", type: :string, required: true
+    option :output, desc: "Dir to place built packages", type: :string, default: File.join(Dir.pwd,"bin")
+    option :release_notes, desc: "notes", type: :string, default: ""
     def build
       package_release_checks
 
       Wooget.log.info "Preinstall before build"
       invoke "install", [], quiet:true
       Wooget.log.info "Running tests"
-      invoke "test"
+      invoke "test", [], {}
 
-      #run build task
+      templates = Dir.glob(File.join(options[:path],"**/*paket.template"))
+      built_packages = invoke "wooget:packager:build", [], output_dir: options[:output], version:options[:version], release_notes: options[:release_notes], templates: templates
+
+      p "#{built_packages.join " & "} built to #{File.expand_path options[:output]}" if built_packages
     end
 
     option :repo, desc: "Which repo to use"
@@ -49,7 +53,7 @@ module Wooget
       package_release_checks
       releaser = Packager.new
       released_packages = releaser.release options
-      p "#{released_packages.join " & "} released successfully to #{Wooget.repo}" if released_packages
+      p "#{released_packages.join " & "} released successfully" if released_packages
     end
 
     option :repo, desc: "Which repo to use"
@@ -63,7 +67,7 @@ module Wooget
 
       releaser = Packager.new
       released_packages = releaser.prerelease options
-      p "#{released_packages.join " & "} prereleased successfully to #{Wooget.repo}" if released_packages
+      p "#{released_packages.join " & "} prereleased successfully" if released_packages
     end
 
     desc "test", "run package tests in mono"
