@@ -73,10 +73,9 @@ module Wooget
     end
 
     def self.push auth, url, package
-      push_cmd = "echo #{env_vars} nugetkey=#{auth} mono #{@@paket_path} push url #{url} file #{package}"
+      push_cmd = "#{env_vars} nugetkey=#{auth} mono #{@@paket_path} push url #{url} file #{package}"
       Util.run_cmd(push_cmd) { |log| Wooget.no_status_log log }
     end
-
 
   end
 end

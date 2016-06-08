@@ -1,5 +1,4 @@
 require 'fileutils'
-require 'pry-byebug'
 require 'shellwords'
 
 module Wooget
@@ -266,7 +265,10 @@ module Wooget
 
     def package_names
       @template_files.map do |template|
-        package_id = File.read(File.join(project_root, template)).scan(/id (.*)/).flatten.first
+        package_path = template
+        package_path = File.join(project_root, template) unless Pathname(template).absolute?
+
+        package_id = File.read(package_path).scan(/id (.*)/).flatten.first
         [package_id, @version, "nupkg"].join "."
       end
     end
