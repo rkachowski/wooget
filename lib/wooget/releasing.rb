@@ -66,6 +66,12 @@ module Wooget
         built_packages = build_info.package_names.map {|p| File.join(options[:output_dir],p)}
         return build_info.package_names unless args[:push]
 
+        #dirty hack
+        if build_info.version == "919.919.919"
+          Wooget.log.warn "Test packages detected! aborting push"
+          return build_info.package_names
+        end
+
         built_packages.each do |p|
           if args[:confirm]
             next unless yes?("Release #{p} to #{Wooget.repo}?")
@@ -81,9 +87,8 @@ module Wooget
 
       def build_packages(build_info)
         #if we find a csproj.paket.template file then we need to build a binary release
-        needs_dll_build = build_info.template_files.any? { |t| t.match("csproj.paket.template") }
 
-        Util.build if needs_dll_build
+        Util.build if needs_dll_build(build_info)
 
         update_metadata build_info.version
 
@@ -129,6 +134,18 @@ module Wooget
           File.open(file, "w") { |f| f << file_contents.join }
         end
       end
+    end
+
+    def needs_dll_build(build_info)
+      #we have a csproj template file
+      return true if build_info.template_files.any? { |t| t.match("csproj.paket.template") }
+
+      #we have different template files that specify both "<PackageName>.Source" and "<PackageName>" ids (legacy)
+      source_pkgs = build_info.package_ids.select { |p| p.end_with? ".Source"}
+      legacy_dll_pkgs = source_pkgs.map {|p| p.chomp(".Source") }
+      return true if build_info.package_ids.any? { |p| legacy_dll_pkgs.include? p }
+
+      false
     end
 
     private
@@ -251,6 +268,7 @@ module Wooget
 
   class BuildInfo
     attr_accessor :template_files, :output_dir, :version, :release_notes, :project_root
+    attr_reader :package_ids
 
     def initialize template_files=[], output_dir=Dir.pwd, version="919.919.919", release_notes="no notes!", project_root=Dir.pwd
 
@@ -261,16 +279,11 @@ module Wooget
 
       @invalid_reason = []
       @project_root = project_root
+      @package_ids = get_ids
     end
 
     def package_names
-      @template_files.map do |template|
-        package_path = template
-        package_path = File.join(project_root, template) unless Pathname(template).absolute?
-
-        package_id = File.read(package_path).scan(/id (.*)/).flatten.first
-        [package_id, @version, "nupkg"].join "."
-      end
+      @package_ids.map { |id| [id, @version, "nupkg"].join "." }
     end
 
     def invalid_reason
@@ -291,6 +304,16 @@ module Wooget
       end
 
       valid
+    end
+
+    private
+    def get_ids
+      @template_files.map do |template|
+        package_path = template
+        package_path = File.join(project_root, template) unless Pathname(template).absolute?
+
+        File.read(package_path).scan(/id (.*)/).flatten.first
+      end
     end
   end
 end

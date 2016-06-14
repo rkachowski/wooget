@@ -52,11 +52,15 @@ module Wooget
     end
 
     def self.build
-      sln = `find . -name *.sln`.chomp
-      abort "Can't find sln file for building test artifacts" unless sln.length > 4
+      slns = Dir["**/*.sln"]
+      abort "Can't find sln file for building test artifacts" if slns.empty?
 
-      build_log, exitstatus = run_cmd "xbuild #{sln} /p:Configuration=Release"
-      abort "Build Failure: #{build_log}" unless exitstatus == 0
+      slns.each do |sln|
+        next if is_a_unity_project_dir(File.dirname(sln)) #don't build unity's sln file
+
+        build_log, exitstatus = run_cmd "xbuild #{sln} /p:Configuration=Release"
+        abort "Build Failure: #{build_log.join}" unless exitstatus == 0
+      end
     end
 
     def self.valid_version_string? version

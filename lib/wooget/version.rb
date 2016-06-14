@@ -1,5 +1,5 @@
 module Wooget
-  VERSION = "2.0.10".freeze
+  VERSION = "2.0.14".freeze
 
   POST_INSTALL= '
                                 _   _

@@ -11,7 +11,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["donald.hutchison@wooga.net"]
   gem.homepage      = "https://github.com/wooga/wooget"
 
-  gem.files         = Dir["{**/}{.*,*}"].select{ |path| File.file?(path) && path !~ /^pkg/ }
+  gem.files         = Dir["{**/}{.*,*}"].select{ |path| File.file?(path) && path !~ /^[pkg|scrap]/ }
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
