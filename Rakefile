@@ -23,6 +23,7 @@ task :gem do
   FileUtils.mkdir_p 'pkg'
   FileUtils.mv "#{gemspec.name}-#{gemspec.version}.gem", 'pkg'
   puts; sh %{gem install --no-document pkg/#{gemspec.name}-#{gemspec.version}.gem}
+  sh %{gem inabox pkg/#{gemspec.name}-#{gemspec.version}.gem}
 end
 
 
