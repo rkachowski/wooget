@@ -134,19 +134,21 @@ module Wooget
           File.open(file, "w") { |f| f << file_contents.join }
         end
       end
+
+      def needs_dll_build(build_info)
+        #we have a csproj template file
+        return true if build_info.template_files.any? { |t| t.match("csproj.paket.template") }
+
+        #we have different template files that specify both "<PackageName>.Source" and "<PackageName>" ids (legacy)
+        source_pkgs = build_info.package_ids.select { |p| p.end_with? ".Source"}
+        legacy_dll_pkgs = source_pkgs.map {|p| p.chomp(".Source") }
+        return true if build_info.package_ids.any? { |p| legacy_dll_pkgs.include? p }
+
+        false
+      end
     end
 
-    def needs_dll_build(build_info)
-      #we have a csproj template file
-      return true if build_info.template_files.any? { |t| t.match("csproj.paket.template") }
 
-      #we have different template files that specify both "<PackageName>.Source" and "<PackageName>" ids (legacy)
-      source_pkgs = build_info.package_ids.select { |p| p.end_with? ".Source"}
-      legacy_dll_pkgs = source_pkgs.map {|p| p.chomp(".Source") }
-      return true if build_info.package_ids.any? { |p| legacy_dll_pkgs.include? p }
-
-      false
-    end
 
     private
 

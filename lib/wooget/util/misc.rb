@@ -7,14 +7,14 @@ module Wooget
     end
 
     def self.is_a_wooget_package_dir path
-      contents = Dir[File.join(path,"*")]
-      contents.map! {|c| File.basename(c) }
+      contents = Dir[File.join(path, "*")]
+      contents.map! { |c| File.basename(c) }
       contents.include?("paket.dependencies") and contents.include?("RELEASE_NOTES.md")
     end
 
     def self.is_a_unity_project_dir path
-      contents = Dir[File.join(path,"*")]
-      contents.map! {|c| File.basename(c) }
+      contents = Dir[File.join(path, "*")]
+      contents.map! { |c| File.basename(c) }
       contents.include?("Assets") and contents.include?("ProjectSettings")
     end
 
@@ -23,25 +23,24 @@ module Wooget
 
       cmd_output = []
 
-      Dir.chdir(path) do
-        begin
-          PTY.spawn(cmd) do |stdout, stdin, pid|
-            begin
-              stdout.each do |line|
-                cmd_output << line.uncolorize
-                yield line if block_given?
-              end
-            rescue Errno::EIO
-              #This means the process has finished giving output
-            ensure
-              Process.wait(pid)
+      begin
+        PTY.spawn("cd #{path} && #{cmd}") do |stdout, stdin, pid|
+          begin
+            stdout.each do |line|
+              cmd_output << line.uncolorize
+              yield line if block_given?
             end
+          rescue Errno::EIO
+            #This means the process has finished giving output
+          ensure
+            Process.wait(pid)
           end
-        rescue PTY::ChildExited => e
-          #Child process exited
-
         end
+      rescue PTY::ChildExited => e
+        #Child process exited
+
       end
+
 
       exit_status = $?.exitstatus
       [cmd_output, exit_status]
