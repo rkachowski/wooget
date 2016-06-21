@@ -58,7 +58,8 @@ module Wooget
         next if is_a_unity_project_dir(File.dirname(sln)) #don't build unity's sln file
 
         build_log, exitstatus = run_cmd "xbuild #{sln} /p:Configuration=Release"
-        abort "Build Failure: #{build_log.join}" unless exitstatus == 0
+
+        raise BuildError, build_log.join unless exitstatus == 0
       end
     end
 

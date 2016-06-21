@@ -148,10 +148,7 @@ module Wooget
       end
     end
 
-
-
     private
-
 
     def get_build_info_from_file
 

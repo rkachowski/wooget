@@ -108,15 +108,11 @@ module Wooget
 
       Dir.mktmpdir do |tmp_dir|
         p "Building test assembly.."
-        stdout, status = Util.run_cmd("xbuild #{sln} /p:OutDir='#{tmp_dir}/'") { |log| Wooget.no_status_log log}
-        unless status == 0
-          Wooget.log.error "Build Test Failure"
-          Wooget.log.error stdout.join "\n"
-          return
-        end
+        stdout, status = Util.run_cmd("xbuild #{sln}  /t:Rebuild  /p:RestorePackages='False' /p:OutDir='#{tmp_dir}/'") { |log| Wooget.no_status_log log}
+        raise BuildError, stdout.join unless status == 0
 
         Dir[File.join(tmp_dir, "*Tests*.dll")].each do |assembly|
-          _, status = Util.run_cmd("mono #{nunit} #{assembly} -nologo") { |log| p log}
+          _, status = Util.run_cmd("mono #{nunit} #{assembly} -nologo -labels -noshadow") { |log| p log}
           p "Exit Status - #{status}"
         end
       end
