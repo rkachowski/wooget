@@ -30,8 +30,9 @@ module Wooget
     def install package
       unless Util.file_contains? File.join(options[:path],"paket.dependencies"), "nuget #{package}"
 
-        append_to_file File.join(options[:path],"paket.dependencies"),"\nnuget #{package}"
-
+        package.split(",").each do |pkg|
+          append_to_file File.join(options[:path],"paket.dependencies"),"\nnuget #{pkg}"
+        end
       end
 
       generate_references

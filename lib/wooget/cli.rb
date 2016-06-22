@@ -93,7 +93,9 @@ module Wooget
         return
       end
 
-      sln = Dir.glob(File.join(options[:path],"/**/*.sln")).first
+      slns = Dir.glob(File.join(options[:path],"/**/*.sln"))
+      sln = slns.select{ |d| not Wooget::Util.is_a_unity_project_dir(File.dirname(d))}.first
+
       if sln.nil? or sln.empty?
         Wooget.log.error "Can't find sln file for building test artifacts"
         return
@@ -108,7 +110,7 @@ module Wooget
 
       Dir.mktmpdir do |tmp_dir|
         p "Building test assembly.."
-        stdout, status = Util.run_cmd("xbuild #{sln}  /t:Rebuild  /p:RestorePackages='False' /p:OutDir='#{tmp_dir}/'") { |log| Wooget.no_status_log log}
+        stdout, status = Util.run_cmd("xbuild #{File.expand_path(sln)}  /t:Rebuild  /p:RestorePackages='False' /p:Configuration='Release' /p:OutDir='#{tmp_dir}/'") { |log| Wooget.no_status_log log}
         raise BuildError, stdout.join unless status == 0
 
         Dir[File.join(tmp_dir, "*Tests*.dll")].each do |assembly|

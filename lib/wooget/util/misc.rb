@@ -50,14 +50,14 @@ module Wooget
       File.foreach(filename).grep(/#{Regexp.escape(string)}/).any?
     end
 
-    def self.build
-      slns = Dir["**/*.sln"]
+    def self.build slns=nil
+      slns ||= Dir["**/*.sln"]
       abort "Can't find sln file for building test artifacts" if slns.empty?
 
       slns.each do |sln|
         next if is_a_unity_project_dir(File.dirname(sln)) #don't build unity's sln file
 
-        build_log, exitstatus = run_cmd "xbuild #{sln} /p:Configuration=Release"
+        build_log, exitstatus = run_cmd("xbuild #{File.expand_path(sln)} /t:Rebuild /p:Configuration=Release") { |log| Wooget.no_status_log log}
 
         raise BuildError, build_log.join unless exitstatus == 0
       end

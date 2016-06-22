@@ -6,7 +6,7 @@ require_relative "wooget/paket"
 require_relative "wooget/util/misc"
 require_relative "wooget/template/visual_studio"
 require_relative "wooget/template/unity"
-
+require_relative "wooget/util/build_error"
 
 
 
