@@ -180,7 +180,7 @@ module Wooget
     option :format, desc: "What format to output results", type: :string, enum: ["shell","json"], default: "shell"
     option :show_binary, desc: "Display binary packages in output", type: :boolean, default: false
     desc "list", "list available packages + version"
-    def list
+    def list package_id=nil
       load_config
 
       packages_by_repo = {}
@@ -199,7 +199,15 @@ module Wooget
 
       threads.each {|t| t.join}
 
-      p PackageListFormatter.format_list packages_by_repo, options[:format], options[:show_binary]
+      result = ""
+
+      if package_id
+        result = PackageListFormatter.format_package packages_by_repo, options[:format], package_id
+      else
+        result = PackageListFormatter.format_list packages_by_repo, options[:format], options[:show_binary]
+      end
+
+      p result
     end
 
     private

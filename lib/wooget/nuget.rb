@@ -46,7 +46,7 @@ module Wooget
     attr_reader :id, :version, :normalized_version, :authors, :copyright, :created, :dependencies, :description, :download_count
     attr_reader :gallery_details_url, :icon_url, :is_latest_version, :is_absolute_latest_version, :is_prerelease, :language, :last_updated
     attr_reader :published, :package_hash, :package_hash_algorithm, :package_size, :project_url, :report_abuse_url, :release_notes
-    attr_reader :require_license_acceptance, :license_url
+    attr_reader :require_license_acceptance, :license_url, :summary, :tags
 
     attr_accessor :has_binary, :is_binary
 
