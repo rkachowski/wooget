@@ -199,7 +199,7 @@ module Wooget
 
       threads.each {|t| t.join}
 
-      p PackageListFormatter.format packages_by_repo, options[:format]
+      p PackageListFormatter.format_list packages_by_repo, options[:format], options[:show_binary]
     end
 
     private

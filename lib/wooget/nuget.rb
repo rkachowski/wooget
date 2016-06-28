@@ -48,6 +48,8 @@ module Wooget
     attr_reader :published, :package_hash, :package_hash_algorithm, :package_size, :project_url, :report_abuse_url, :release_notes
     attr_reader :require_license_acceptance, :license_url
 
+    attr_accessor :has_binary, :is_binary
+
     def initialize package_id, url, properties
       @package_id = package_id
       @url = url
