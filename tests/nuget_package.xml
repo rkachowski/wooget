@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns="http://www.w3.org/2005/Atom" xml:base="https://wooga.artifactoryonline.com/wooga/api/nuget/nuget-private/">
+  <title type="text"></title>
+  <id>http://schemas.datacontract.org/2004/07/</id>
+  <updated>2016-06-27T15:12:41Z</updated>
+  <link rel="self" title="Search" href="Search"/>
+  <entry>
+    <id>https://lol.test.url</id>
+    <title type="text">Unit.Test.Package.Name</title>
+    <summary type="text">This is a summary</summary>
+    <updated>2016-06-16T13:58:33Z</updated>
+    <author>
+      <name>Wooga</name>
+    </author>
+    <link rel="edit" title="V2FeedPackage" href="Packages(Id='Google.Play.Native.Android',Version='2.14.10')"/>
+    <link rel="self" title="V2FeedPackage" href="Packages(Id='Google.Play.Native.Android',Version='2.14.10')"/>
+    <category term="NuGetGallery.OData.V2FeedPackage" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme"/>
+    <content type="application/zip" src="https://wooga.artifactoryonline.com/wooga/api/nuget/nuget-private/Download/Google.Play.Native.Android/2.14.10"/>
+    <m:properties xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices">
+      <d:lastUpdated>2016-06-16T13:58:33</d:lastUpdated>
+      <d:Version>7.7.777</d:Version>
+      <d:Copyright>Copyright 2015</d:Copyright>
+      <d:Created m:type="Edm.DateTime">2016-06-16T13:58:33</d:Created>
+      <d:Dependencies></d:Dependencies>
+      <d:Description>description</d:Description>
+      <d:DownloadCount m:type="Edm.Int32">2</d:DownloadCount>
+      <d:IconUrl>http://wooga.github.io/wdk-unity-Tracking/img/logo.png</d:IconUrl>
+      <d:IsLatestVersion m:type="Edm.Boolean">true</d:IsLatestVersion>
+      <d:IsAbsoluteLatestVersion m:type="Edm.Boolean">true</d:IsAbsoluteLatestVersion>
+      <d:IsPrerelease m:type="Edm.Boolean">false</d:IsPrerelease>
+      <d:Language m:null="true"/>
+      <d:Published m:type="Edm.DateTime">2016-06-16T13:58:33</d:Published>
+      <d:LicenseUrl>https://github.com/wooga/wdk-unity-Tracking/blob/master/LICENSE.txt</d:LicenseUrl>
+      <d:PackageHash>QxopTmvcxlWiALcV5hPnm3GuNcy4DysPqzbehM8hahOe3XPeJOf1oQnuhp2Vz9eTkar+YTQI0MEbjQUtt8R9hQ==</d:PackageHash>
+      <d:PackageHashAlgorithm>SHA512</d:PackageHashAlgorithm>
+      <d:PackageSize m:type="Edm.Int64">6076860</d:PackageSize>
+      <d:ProjectUrl>https://github.com/wooga/wdk-unity-Tracking</d:ProjectUrl>
+      <d:ReleaseNotes>add null check on gadid error
+[CHANGED] return an empty string when google add id is unavailable instead of error</d:ReleaseNotes>
+      <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
+      <d:Tags>googleplay</d:Tags>
+      <d:Title m:null="true"/>
+      <d:VersionDownloadCount m:type="Edm.Int32">2</d:VersionDownloadCount>
+      <d:Authors>Wooga</d:Authors>
+      <d:MinClientVersion m:null="true"/>
+      <d:Summary>google-play-services lib and android-support-v4.jar</d:Summary>
+    </m:properties>
+  </entry>
+</feed>

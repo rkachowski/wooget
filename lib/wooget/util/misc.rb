@@ -57,7 +57,7 @@ module Wooget
       slns.each do |sln|
         next if is_a_unity_project_dir(File.dirname(sln)) #don't build unity's sln file
 
-        build_log, exitstatus = run_cmd("xbuild #{File.expand_path(sln)} /t:Rebuild /p:Configuration=Release") { |log| Wooget.no_status_log log}
+        build_log, exitstatus = run_cmd("xbuild #{File.expand_path(sln)} /t:Rebuild /p:Configuration=Release") { |log| Wooget.no_status_log log }
 
         raise BuildError, build_log.join unless exitstatus == 0
       end
@@ -81,5 +81,14 @@ class String
 
     #more ansi control codes that the above doesn't pickup
     result.gsub(/\[(?:[A-Z0-9]{1,2}[nmKM]?)|\[(?:\?.*[=<>])|(?:;\d+[nmKM]?)/, '')
+  end
+
+  #convert to snake case
+  def snake_case
+    self.gsub(/::/, '/').
+        gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').
+        gsub(/([a-z\d])([A-Z])/, '\1_\2').
+        tr("-", "_").
+        downcase
   end
 end

@@ -206,7 +206,7 @@ module Wooget
             next
           end
 
-          #otherwise we append prerelease version spec (unless it's there already)
+          #otherwise we append prerelease version tests (unless it's there already)
           unless line.match />= 0.0.0-prerelease/
             paket_template << "#{line.chomp} >= 0.0.0-prerelease\n"
             next

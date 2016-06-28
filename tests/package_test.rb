@@ -1,9 +1,8 @@
 require_relative "../lib/wooget"
 require "minitest/autorun"
 
-describe Wooget do
-
-  it "should create a new package tree" do
+class PackageTests < Minitest::Test
+  def  test_create_new_package_tree
     Dir.mktmpdir do |tmpdir|
 
       Dir.chdir(tmpdir) do
@@ -18,7 +17,7 @@ describe Wooget do
     end
   end
 
-  it "should correctly format prerelease files" do
+  def test_should_format_prerelease_files
     Dir.mktmpdir do |tmpdir|
       Dir.chdir(tmpdir) do
          Wooget::Project.new.create "Prerelease.Package", author: "Test Author", repo: "testrepo", visual_studio: true, quiet:true
@@ -36,21 +35,22 @@ describe Wooget do
         File.open(File.join("Prerelease.Package", "RELEASE_NOTES.md"),"w"){|f| f << lines.join }
 
 
-        Dir.chdir("Prerelease.Package") do
-          Wooget::Packager.new.prerelease :no_push => true, :quiet => true
+        Dir.chdir("Prerelease.Package") do |d|
+          p = Wooget::Packager.new [], :path => File.join(tmpdir,d)
+          p.prerelease :no_push => true, :quiet => true
         end
 
         template_contents = File.open(File.join("Prerelease.Package", "paket.template")).read
         dependencies_contents = File.open(File.join("Prerelease.Package", "paket.dependencies")).read
 
-        assert template_contents.include?("test.dependency.package >= 0.0.0-prerelease"), "template should have prerelease dependencies with version spec"
+        assert template_contents.include?("test.dependency.package >= 0.0.0-prerelease"), "template should have prerelease dependencies with version tests"
         assert dependencies_contents.include?("nuget test.dependency.package prerelease"), "dependencies file should have package marked as prerelease"
 
       end
     end
   end
 
-  it "should update metadatafiles correctly" do
+  def test_update_metafiles
     Dir.mktmpdir do |tmpdir|
       Dir.chdir(tmpdir) do
         proj = Wooget::Project.new
