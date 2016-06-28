@@ -2,6 +2,7 @@ require 'thor'
 require 'fileutils'
 require 'json'
 require 'pathname'
+require 'activesupport/json_encoder'
 
 module Wooget
   class CLI < Thor
@@ -173,6 +174,32 @@ module Wooget
         p "Unity project detected - Checking setup"
         Wooget::Unity.new.bootstrap
       end
+    end
+
+    option :repos, desc: "Which repos to list", type: :array, default: ["main", "universe","legacy"]
+    option :format, desc: "What format to output results", type: :string, enum: ["shell","json"], default: "shell"
+    option :show_binary, desc: "Display binary packages in output", type: :boolean, default: false
+    desc "list", "list available packages + version"
+    def list
+      load_config
+
+      packages_by_repo = {}
+      packages_by_repo_lock = Mutex.new
+
+      threads = options[:repos].map do |repo|
+        Thread.new do
+          url = Wooget.repos[repo] || Wooget.repos[repo.to_sym]
+          raise RepoError, "Can't find a repository with name '#{repo}' in the configuration" unless url
+
+          nuget = Nuget.new
+          packages = nuget.invoke "packages", [], repo_url:url
+          packages_by_repo_lock.synchronize { packages_by_repo[repo] = packages}
+        end
+      end
+
+      threads.each {|t| t.join}
+
+      p PackageListFormatter.format packages_by_repo, options[:format]
     end
 
     private

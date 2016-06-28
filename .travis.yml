@@ -1,7 +1,7 @@
 sudo: false
 language: ruby
 
-script: bundle exec ruby spec/wooget_spec.rb
+script: bundle exec ruby tests/package_test.rb
 
 rvm:
 - 2.3.0

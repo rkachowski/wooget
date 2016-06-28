@@ -1,8 +1,22 @@
 require 'ostruct'
 require 'nokogiri'
+require 'curb'
 
 module Wooget
   class Nuget < Thor
+    option :repo_url, desc: "url to the repo", required: true
+    desc "packages", "get packages for a repo"
+    def packages
+      Wooget.log.info "Fetching package list for #{options[:repo_url]} ..."
+      c = Curl::Easy.new(options[:repo_url] + '/Search?$orderby=Id&$filter=IsLatestVersion&searchterm=')
+      c.username = Wooget.credentials[:username]
+      c.password = Wooget.credentials[:password]
+
+      c.perform
+
+      Nuget.from_xml c.body_str
+    end
+
     def self.from_xml file
       if file.is_a? String and File.exists? file
         file = File.open(file)
