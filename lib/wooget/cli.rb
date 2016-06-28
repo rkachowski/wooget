@@ -8,9 +8,9 @@ module Wooget
   class CLI < Thor
     include Thor::Actions
     class_option :verbose, :desc => "Spit out tons of logging info", :aliases => "-v", :type => :boolean
+    class_option :quiet, :desc => "Suppress stdout", :aliases => "-q", :type => :boolean, default: false
     class_option :path, desc: "Path to the project you want to install things into", default: Dir.pwd
 
-    add_runtime_options!
 
     def initialize *args
       super
@@ -210,36 +210,41 @@ module Wooget
       p result
     end
 
-    private
-    def load_config
-      config_location = File.expand_path(File.join("~", ".wooget"))
-      unless File.exists? config_location
-        Wooget.log.info "Creating default config at #{config_location}"
 
-        default_config = File.expand_path(File.join(File.dirname(__FILE__), "template", "wooget_conf.json"))
-        FileUtils.cp(default_config, config_location)
+    no_commands do
+      def load_config
+        config_location = File.expand_path(File.join("~", ".wooget"))
+        unless File.exists? config_location
+          Wooget.log.info "Creating default config at #{config_location}"
+
+          default_config = File.expand_path(File.join(File.dirname(__FILE__), "template", "wooget_conf.json"))
+          FileUtils.cp(default_config, config_location)
+        end
+
+        config = JSON.parse(File.read(config_location), symbolize_names: true)
+
+        Wooget.credentials.merge! config[:credentials]
+        Wooget.repos.merge! config[:repos]
+
+        if config[:repos][:default]
+          Wooget.repos[:default] = config[:repos][:default]
+        end
+
+        #set default repo to whatever was passed on commandline (if anything)
+        if options[:repo]
+          overridden_repo = Wooget.repos[options[:repo]] || Wooget.repos[options[:repo].to_sym]
+          abort "Repo '#{options[:repo]}' not found in conf - options are #{Wooget.repos.keys.join(", ")}" unless overridden_repo
+
+          Wooget.repos[:default] = overridden_repo
+        end
+
+        Wooget.log.debug "Acting as #{Wooget.credentials[:username]}"
+        Wooget.log.debug "Repo is #{Wooget.repo}"
       end
-
-      config = JSON.parse(File.read(config_location), symbolize_names: true)
-
-      Wooget.credentials.merge! config[:credentials]
-      Wooget.repos.merge! config[:repos]
-
-      if config[:repos][:default]
-        Wooget.repos[:default] = config[:repos][:default]
-      end
-
-      #set default repo to whatever was passed on commandline (if anything)
-      if options[:repo]
-        overridden_repo = Wooget.repos[options[:repo]] || Wooget.repos[options[:repo].to_sym]
-        abort "Repo '#{options[:repo]}' not found in conf - options are #{Wooget.repos.keys.join(", ")}" unless overridden_repo
-
-        Wooget.repos[:default] = overridden_repo
-      end
-
-      Wooget.log.debug "Acting as #{Wooget.credentials[:username]}"
-      Wooget.log.debug "Repo is #{Wooget.repo}"
     end
+
+    private
+
 
     def assert_package_dir
       abort "#{ options[:path]} doesn't appear to be a wooget package dir" unless Util.is_a_wooget_package_dir  options[:path]
