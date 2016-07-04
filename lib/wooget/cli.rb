@@ -172,7 +172,7 @@ module Wooget
 
       if Util.is_a_unity_project_dir options[:path]
         p "Unity project detected - Checking setup"
-        Wooget::Unity.new.bootstrap
+        invoke "wooget:unity:bootstrap", [], options
       end
     end
 

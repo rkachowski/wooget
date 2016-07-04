@@ -2,36 +2,38 @@ module Wooget
   class Unity < Thor
     attr_accessor :options
     include Thor::Actions
-    add_runtime_options!
 
     class_option :path, desc: "Path to unity project root", default: Dir.pwd
 
     def self.source_root
-      File.join(File.dirname(__FILE__),"files")
+      File.join(File.dirname(__FILE__), "files")
     end
 
     desc "bootstrap", "Add required files to unity project for wooget usage"
+
     def bootstrap
-      required_files = %w(paket.lock paket.dependencies paket.unity3d.references)
-      missing_files = required_files.select { |f| not File.exists?(File.join(options[:path],f))}
-      return unless missing_files.length > 0
 
-      #todo: handle situations where files exist but without required content (source refs in paket.dependencies)
+      dependencies_path = File.join(options[:path], "paket.dependencies")
+      if File.exists?(dependencies_path)
+        set_wooga_sources dependencies_path
+      else
+        template("unity_paket.dependencies.erb", File.join(options[:path], "paket.dependencies"))
+      end
 
-      template("unity_paket.dependencies.erb", File.join(options[:path],"paket.dependencies"))
-      create_file File.join(options[:path],"paket.lock")
-      create_file File.join(options[:path],"paket.unity3d.references")
+      required_files = %w(paket.lock paket.unity3d.references).select { |f| not File.exists?(File.join(options[:path], f)) }
+      required_files.each { |f| create_file File.join(options[:path], f) }
     end
 
 
     #todo: move things below into paket.rb and convert paket.rb to be thor task
 
     desc "install PACKAGE_ID", "Install specific package into unity project"
+
     def install package
-      unless Util.file_contains? File.join(options[:path],"paket.dependencies"), "nuget #{package}"
+      unless Util.file_contains? File.join(options[:path], "paket.dependencies"), "nuget #{package}"
 
         package.split(",").each do |pkg|
-          append_to_file File.join(options[:path],"paket.dependencies"),"\nnuget #{pkg}"
+          append_to_file File.join(options[:path], "paket.dependencies"), "\nnuget #{pkg}"
         end
       end
 
@@ -39,22 +41,33 @@ module Wooget
     end
 
     desc "generate_references", "Generate the paket.unity3d.references file from paket.dependency contents"
+
     def generate_references
       unless Paket.should_generate_unity3d_references? options[:path]
         Wooget.log.debug "automanage tag not found - skipping `paket.unity3d.references` generation"
         return
       end
 
-      to_install = File.open(File.join(options[:path],"paket.dependencies")).readlines.select { |l| l =~ /^\s*nuget \w+/ }
+      to_install = File.open(File.join(options[:path], "paket.dependencies")).readlines.select { |l| l =~ /^\s*nuget \w+/ }
       to_install.map! { |d| d.match(/nuget (\S+)/)[1] }
 
-      File.open(File.join(options[:path],"paket.unity3d.references"), "w") do |f|
+      File.open(File.join(options[:path], "paket.unity3d.references"), "w") do |f|
         to_install.each { |dep| f.puts(dep) }
       end
     end
 
-    # def update package
-    #
-    # end
+    no_commands do
+      def set_wooga_sources dependencies_path
+        lines = File.open(dependencies_path).readlines
+        lines.delete_if {|line| line =~ /wooga\.artifactoryonline\.com\/wooga/}
+
+        wooga_sources = ['source https://wooga.artifactoryonline.com/wooga/api/nuget/nuget-private username: "%USERNAME%" password: "%PASSWORD%"',
+        'source https://wooga.artifactoryonline.com/wooga/api/nuget/sdk-main username: "%USERNAME%" password: "%PASSWORD%"',
+        'source https://wooga.artifactoryonline.com/wooga/api/nuget/sdk-universe username: "%USERNAME%" password: "%PASSWORD%"'].map {|l| l + "\n"}
+
+        lines.insert(1, wooga_sources)
+        File.open(dependencies_path,"w") {|f| f << lines.join}
+      end
+    end
   end
 end

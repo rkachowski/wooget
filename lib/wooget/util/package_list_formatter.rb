@@ -2,7 +2,7 @@ module Wooget
   class PackageListFormatter
     def self.format_list package_hash, format, show_binary=false
 
-      process_binary_packages package_hash
+      package_hash.values.each {|list| Package.process_binary_packages(list)}
 
       case format
         when "shell", :shell
@@ -30,7 +30,7 @@ module Wooget
     end
 
     def self.format_package package_hash, format, package_id=false
-      process_binary_packages package_hash
+      package_hash.values.each {|list| Package.process_binary_packages(list)}
 
       package = nil
       package_hash.each do |_, packages|
@@ -55,21 +55,5 @@ module Wooget
           package.to_json
       end
     end
-
-    #
-    # discern between source and binary packages
-    def self.process_binary_packages(package_hash)
-      package_hash.each do |_, packages|
-        packages.each do |package|
-          package.is_binary = (package.package_id =~ /Binary/ or packages.any? { |p| p.package_id == package.package_id + ".Source" })
-          package.has_binary = packages.any? do |p|
-            (p.package_id != package.package_id and p.package_id == package.package_id.chomp(".Source"))\
-            or p.package_id == package.package_id + ".Binary"
-          end
-        end
-      end
-    end
-
-
   end
 end

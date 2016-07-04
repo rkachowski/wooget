@@ -6,6 +6,7 @@ module Wooget
   class Nuget < Thor
     option :repo_url, desc: "url to the repo", required: true
     desc "packages", "get packages for a repo"
+
     def packages
       Wooget.log.info "Fetching package list for #{options[:repo_url]} ..."
       c = Curl::Easy.new(options[:repo_url] + '/Search?$orderby=Id&$filter=IsLatestVersion&searchterm=')
@@ -56,6 +57,18 @@ module Wooget
       @properties = properties || {}
 
       apply_properties
+    end
+
+    #
+    # discern between source and binary packages
+    def self.process_binary_packages(packages)
+      packages.each do |package|
+        package.is_binary = (package.package_id =~ /Binary/ or packages.any? { |p| p.package_id == package.package_id + ".Source" })
+        package.has_binary = packages.any? do |p|
+          (p.package_id != package.package_id and p.package_id == package.package_id.chomp(".Source"))\
+            or p.package_id == package.package_id + ".Binary"
+        end
+      end
     end
 
     private
