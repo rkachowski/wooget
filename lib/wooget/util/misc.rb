@@ -18,13 +18,22 @@ module Wooget
       contents.include?("Assets") and contents.include?("ProjectSettings")
     end
 
+    #
+    #runs a command in a separate process and working dir, takes a block which is yielded on every line of stdout
+    #returns [[stdout], exit_status]
     def self.run_cmd cmd, path=Dir.pwd
       Wooget.log.debug "Running `#{cmd}`"
 
       cmd_output = []
-
+      shutdown = -> {Wooget.log.error "Trying to shutdown child before pid recieved"}
       begin
+        Signal.trap("INT") do
+          shutdown.call()
+        end
+
         PTY.spawn("cd #{path} && #{cmd}") do |stdout, stdin, pid|
+          shutdown = -> {Process.kill(9, pid)}
+
           begin
             stdout.each do |line|
               cmd_output << line.uncolorize
