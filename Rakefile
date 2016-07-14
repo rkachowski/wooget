@@ -25,7 +25,6 @@ task :gem do
   print "  "; sh "gem build #{gemspec_file}"
   FileUtils.mkdir_p 'pkg'
   FileUtils.mv "#{gemspec.name}-#{gemspec.version}.gem", 'pkg'
-  puts; sh %{gem install --no-document pkg/#{gemspec.name}-#{gemspec.version}.gem}
 end
 
 desc "Build and push to sdk.wooga.com + create github release"
@@ -61,6 +60,14 @@ task :release => :gem do
   puts "done"
 end
 
+task :install => :gem do
+ puts
+ sh %{gem install --no-document pkg/#{gemspec.name}-#{gemspec.version}.gem}
+end
+
+task :inabox => :gem do
+  sh %{gem inabox pkg/#{gemspec.name}-#{gemspec.version}.gem}
+end
 
 # # #
 # Start an IRB session with the gem loaded
