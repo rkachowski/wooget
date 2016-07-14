@@ -190,41 +190,37 @@ module Wooget
     def list package_id=nil
       load_config
 
-      packages_by_repo = package_list_by_repo(options[:repos])
-
       if package_id
-        p PackageListFormatter.format_package packages_by_repo, options[:format], package_id
+        p PackageListFormatter.format_package package_list_by_repo, options[:format], package_id
       else
-        p PackageListFormatter.format_list packages_by_repo, options[:format], options[:show_binary]
+        p PackageListFormatter.format_list package_list_by_repo, options[:format], options[:show_binary]
       end
     end
 
     option :repos, desc: "Which repos to search", type: :array, default: ["main", "universe","legacy"]
     option :format, desc: "What format to output results", type: :string, enum: ["shell","json"], default: "shell"
     option :show_binary, desc: "Display binary packages in output", type: :boolean, default: false
-    desc "search", "search packages"
+    desc "search", "search packages by a regex"
     def search pattern
       load_config
 
-      if pattern
-        packages_by_repo = package_list_by_repo(options[:repos], pattern)
-        p PackageListFormatter.format_list packages_by_repo, options[:format], options[:show_binary]
-      end
+      packages_by_repo = package_list_by_repo pattern
+      p PackageListFormatter.format_list packages_by_repo, options[:format], options[:show_binary]
     end
 
     private
-    def package_list_by_repo(repos, match_pattern=nil)
+    def package_list_by_repo(match_pattern=nil)
       packages_by_repo = {}
       packages_by_repo_lock = Mutex.new
 
-      threads = repos.map do |repo|
+      threads = options[:repos].map do |repo|
         Thread.new do
           url = Wooget.repos[repo] || Wooget.repos[repo.to_sym]
           raise RepoError, "Can't find a repository with name '#{repo}' in the configuration" unless url
 
           nuget = Nuget.new
           packages = nuget.invoke "packages", [], repo_url:url
-          packages = packages.select { |pkg| pkg.package_id.match(match_pattern) } unless match_pattern.nil?
+          packages = packages.select { |pkg| pkg.package_id.downcase.match(match_pattern.downcase) } unless match_pattern.nil?
           packages_by_repo_lock.synchronize { packages_by_repo[repo] = packages}
         end
       end
