@@ -81,8 +81,8 @@ module Wooget
     def prerelease
       package_release_checks
 
-      releaser = Packager.new
-      released_packages = releaser.prerelease options
+      releaser = Packager.new [], options
+      released_packages = releaser.prerelease
       p "#{released_packages.join " & "} prereleased successfully" if released_packages
     end
 

@@ -1,6 +1,8 @@
 require_relative "wooget/version"
 require_relative "wooget/cli"
 require_relative "wooget/releasing"
+require_relative "wooget/build/build_info"
+require_relative "wooget/build/builder"
 require_relative "wooget/project"
 require_relative "wooget/paket"
 require_relative "wooget/nuget"
