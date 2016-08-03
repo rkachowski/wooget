@@ -31,7 +31,7 @@ module Wooget
 
     desc "build", "build the packages in the current dir"
     option :version, desc:"Version number to prepend to release notes", type: :string, required: true
-    option :output, desc: "Dir to place built packages", type: :string, default: File.join(Dir.pwd,"bin")
+    option :output, desc: "Dir to place built packages", type: :string, default: "bin"
     option :release_notes, desc: "Release notes to include in the package", type: :string, default: ""
     def build
       package_release_checks
@@ -57,7 +57,7 @@ module Wooget
 
       built_packages = invoke "wooget:packager:build", [], build_options
 
-      p "#{built_packages.join " & "} built to #{File.expand_path options[:output]}" if built_packages
+      p "#{built_packages.join " & "} built to #{File.expand_path File.join(options[:path],options[:output])}" if built_packages
     end
 
     option :repo, desc: "Which repo to use"
@@ -67,6 +67,7 @@ module Wooget
 
     def release
       package_release_checks
+
       releaser = Packager.new
       released_packages = releaser.release options
       p "#{released_packages.join " & "} released successfully" if released_packages
@@ -75,7 +76,6 @@ module Wooget
     option :repo, desc: "Which repo to use"
     option :push, desc: "Should built package be pushed to repo", default: true, type: :boolean
     option :confirm, desc: "Ask for confirmation before pushing", default: true, type: :boolean
-
     desc "prerelease", "prerelease package in current dir"
 
     def prerelease
