@@ -37,10 +37,10 @@ module Wooget
       package_release_checks
 
       p "Preinstall before build"
-      invoke "install", [], quiet:true, path:options[:path]
+      invoke "install", [], quiet:true, path:get_path
 
       p "Running tests"
-      invoke "test", [], path:options[:path]
+      invoke "test", [], path:get_path
 
       #templates refs have to be relative to the working dir / project root for paket.exe
       path = Pathname.new(options[:path])
@@ -68,8 +68,8 @@ module Wooget
     def release
       package_release_checks
 
-      releaser = Packager.new
-      released_packages = releaser.release options
+      releaser = Packager.new [], options
+      released_packages = releaser.release
       p "#{released_packages.join " & "} released successfully" if released_packages
     end
 
@@ -247,7 +247,12 @@ module Wooget
 
 
     def assert_package_dir
-      abort "#{ options[:path]} doesn't appear to be a wooget package dir" unless Util.is_a_wooget_package_dir  options[:path]
+      abort "#{ get_path} doesn't appear to be a wooget package dir" unless Util.is_a_wooget_package_dir  get_path
+    end
+
+    def get_path
+      path = Pathname.new(options[:path])
+      path.absolute? ? path : File.join(Dir.pwd, options[:path])
     end
 
     def assert_dependencies

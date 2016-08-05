@@ -27,6 +27,24 @@ module Wooget
 
     option :push, desc: "push to remote repo", type: :boolean, default: true
     option :confirm, desc: "ask for confirmation before pushing", type: :boolean, default: true
+    desc "release", "set release deps, build + push"
+
+    def release
+      clean
+
+      build_info = get_build_info_from_template_files
+      unless build_info.valid?
+        Wooget.log.error "Invalid build options - #{build_info.invalid_reason}"
+        return
+      end
+
+
+      builder = Build::ReleaseBuilder.new [], options
+      builder.perform_build build_info
+    end
+
+    option :push, desc: "push to remote repo", type: :boolean, default: true
+    option :confirm, desc: "ask for confirmation before pushing", type: :boolean, default: true
     desc "prerelease", "set prerelease deps, build + push"
 
     def prerelease
@@ -43,31 +61,17 @@ module Wooget
       builder.perform_build build_info
     end
 
-    no_commands do
+    private
 
-      #build_and_push in release mode
-      def release options={}
-        # release_options = {
-        #     stage: "Release",
-        #     preconditions: -> { check_release_preconditions },
-        #     prebuild: -> { set_release_dependencies }
-        # }
-        #
-        # build_and_push options.merge(release_options)
+    def clean
+      if Dir.exists? File.join(options[:path], "bin")
+        Wooget.log.debug "Cleaning bin dir"
+        FileUtils.rmtree File.join(options[:path], "bin")
       end
 
-
-      def clean
-        if Dir.exists? File.join(options[:path], "bin")
-          Wooget.log.debug "Cleaning bin dir"
-          FileUtils.rmtree File.join(options[:path], "bin")
-        end
-
-        Dir.mkdir(options[:output_dir]) unless Dir.exists? options[:output_dir]
-      end
+      Dir.mkdir(options[:output_dir]) unless Dir.exists? options[:output_dir]
     end
 
-    private
 
     def get_build_info_from_template_files
 

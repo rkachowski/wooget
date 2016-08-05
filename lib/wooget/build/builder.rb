@@ -2,8 +2,7 @@ module Wooget
   module Build
     class Builder < Thor
       def setup build_info
-
-        update_metadata build_info.version
+        #todo: detect native build script
       end
 
       def perform_build build_info
@@ -24,17 +23,10 @@ module Wooget
       end
 
       def post_build build_info, built_packages
-        if options[:push]
-          built_packages.each do |p|
-            if options[:confirm]
-              next unless yes?("Release #{p} to #{Wooget.repo}?")
-            end
+        push_packages(built_packages)
 
-            auth = "#{Wooget.credentials[:username]}:#{Wooget.credentials[:password]}"
-
-            Paket.push auth, Wooget.repo, p
-          end
-        end
+        #todo: check for git release
+        #todo: check for git commit
 
         build_info.package_names
       end
@@ -44,7 +36,7 @@ module Wooget
       def create_packages(build_info)
         #if we find a csproj.paket.template file then we need to build a binary release
 
-        Util.build if needs_dll_build(build_info)
+        dll_build build_info if build_info.needs_dll_build?
 
         update_metadata build_info.version
 
@@ -67,16 +59,31 @@ module Wooget
         nil
       end
 
-      def needs_dll_build(build_info)
-        #we have a csproj template file
-        return true if build_info.template_files.any? { |t| t.match("csproj.paket.template") }
+      def dll_build build_info
+        slns = Dir[File.join(build_info.project_root,"**/*.sln")]
+        abort "Can't find sln file for building test artifacts" if slns.empty?
 
-        #we have different template files that specify both "<PackageName>.Source" and "<PackageName>" ids (legacy)
-        source_pkgs = build_info.package_ids.select { |p| p.end_with? ".Source" }
-        legacy_dll_pkgs = source_pkgs.map { |p| p.chomp(".Source") }
-        return true if build_info.package_ids.any? { |p| legacy_dll_pkgs.include? p }
+        slns.each do |sln|
+          next if Util.is_a_unity_project_dir(File.dirname(sln)) #don't build unity's sln file
 
-        false
+          build_log, exitstatus = Util.run_cmd("xbuild #{File.expand_path(sln)} /t:Rebuild /p:Configuration=Release") { |log| Wooget.no_status_log log }
+
+          raise BuildError, build_log.join unless exitstatus == 0
+        end
+      end
+
+      def push_packages(built_packages)
+        if options[:push]
+          built_packages.each do |p|
+            if options[:confirm]
+              next unless yes?("Release #{p} to #{Wooget.repo}?")
+            end
+
+            auth = "#{Wooget.credentials[:username]}:#{Wooget.credentials[:password]}"
+
+            Paket.push auth, Wooget.repo, p
+          end
+        end
       end
 
       def update_metadata new_version
@@ -95,6 +102,7 @@ module Wooget
         end
       end
     end
+
     class PrereleaseBuilder < Builder
 
       def setup build_info
@@ -165,11 +173,25 @@ module Wooget
     end
 
     class ReleaseBuilder < Builder
-      #
-      # sets release dependencies on paket files and creates release template
-      def set_release_dependencies
+
+      def setup build_info
+        self.options = Thor::CoreExt::HashWithIndifferentAccess.new(options)
+        options[:stage] = "Release"
+
+        fail_msg = check_release_preconditions build_info
+        abort "Prerelease fail - '#{fail_msg}'" if fail_msg
+
+        set_release_dependencies build_info
+
+        super
+      end
+
+      def set_release_dependencies build_info
         #remove prerelease references from dependencies and template
-        %w(paket.template paket.dependencies).each do |file|
+        files = build_info.template_files + %w(paket.dependencies)
+        files.map! {|f| f.start_with?("/") ? f : File.join(options[:path],f)}
+
+        files.each do |file|
           release_dependencies = []
           File.open(file).each do |line|
             release_dependencies << line.sub(/\s*[>=]{1}\s*.*(prerelease)|prerelease/, "")
@@ -184,11 +206,9 @@ module Wooget
       #
       # sets prerelease dependencies on paket files and creates prerelease template
 
-      def check_release_preconditions
-        return "#{Dir.pwd} doesn't appear to be a valid package dir" unless valid_package_dir
-
-        version, prerelease_tag = get_version_from_release_notes
-        return "Not a full release - #{version}-#{prerelease_tag}" unless prerelease_tag.empty?
+      def check_release_preconditions build_info
+        return "#{options[:path]} doesn't appear to be a valid package dir" unless Util.is_a_wooget_package_dir options[:path]
+        return "Not a full release - #{build_info.version}" if build_info.version =~ /prerelease/
       end
     end
   end
