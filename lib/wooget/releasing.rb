@@ -95,7 +95,7 @@ module Wooget
     def get_latest_release_notes
       notes = []
       File.open(File.join(options[:path], "RELEASE_NOTES.md")).each do |line|
-        break if line.empty? and notes.length > 0
+        break if line.strip.empty? and notes.length > 0
 
         #include the line unless it's a version title
         notes << line unless line.match /#*\s*(\d+\.\d+\.\d+)-?(\w*)/

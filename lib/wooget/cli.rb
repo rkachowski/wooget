@@ -63,26 +63,28 @@ module Wooget
     option :repo, desc: "Which repo to use"
     option :push, desc: "Should built package be pushed to repo", default: true, type: :boolean
     option :confirm, desc: "Ask for confirmation before pushing", default: true, type: :boolean
+    option :output, desc: "Dir to place built packages", type: :string, default: "bin"
     desc "release", "release package in current dir"
 
     def release
       package_release_checks
 
-      releaser = Packager.new [], options
-      released_packages = releaser.release
+      released_packages = invoke "wooget:packager:release", [], options
+
       p "#{released_packages.join " & "} released successfully" if released_packages
     end
 
     option :repo, desc: "Which repo to use"
     option :push, desc: "Should built package be pushed to repo", default: true, type: :boolean
     option :confirm, desc: "Ask for confirmation before pushing", default: true, type: :boolean
+    option :output, desc: "Dir to place built packages", type: :string, default: "bin"
     desc "prerelease", "prerelease package in current dir"
 
     def prerelease
       package_release_checks
 
-      releaser = Packager.new [], options
-      released_packages = releaser.prerelease
+      released_packages = invoke "wooget:packager:prerelease", [], options
+
       p "#{released_packages.join " & "} prereleased successfully" if released_packages
     end
 

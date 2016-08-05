@@ -1,12 +1,10 @@
 module Wooget
   module Build
     class Builder < Thor
-      def setup build_info
-        #todo: detect native build script
-      end
 
       def perform_build build_info
-        setup build_info
+        setup_failure_reason = setup build_info
+        return setup_failure_reason unless setup_failure_reason.nil?
 
         build_result = create_packages(build_info)
         return if build_result == :fail
@@ -22,6 +20,12 @@ module Wooget
         post_build build_info, built_packages
       end
 
+      private
+
+      def setup build_info
+        build_native_extensions
+      end
+
       def post_build build_info, built_packages
         push_packages(built_packages)
 
@@ -31,7 +35,16 @@ module Wooget
         build_info.package_names
       end
 
-      private
+      def build_native_extensions
+        build_script_path = File.join(options[:path],"build.sh")
+        return unless File.exists? build_script_path
+
+        Wooget.log.info "External build script found - executing #{build_script_path}..."
+        stdout, status = Util.run_cmd("./#{build_script_path}") {|p| Wooget.no_status_log("build.sh > "+p) }
+        return "Native Build Error: #{stdout.join}" unless status == 0
+
+        nil
+      end
 
       def create_packages(build_info)
         #if we find a csproj.paket.template file then we need to build a binary release
