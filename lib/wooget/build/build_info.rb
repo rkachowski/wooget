@@ -1,3 +1,5 @@
+require 'shellwords'
+
 module Wooget
   module Build
     class BuildInfo
@@ -38,6 +40,10 @@ module Wooget
         end
 
         valid
+      end
+
+      def build_name
+        (File.basename(@project_root)+version).shellescape
       end
 
       def needs_dll_build?

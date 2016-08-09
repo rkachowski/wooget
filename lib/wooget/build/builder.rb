@@ -1,7 +1,11 @@
+require 'octokit'
+require 'pry-byebug'
 module Wooget
   module Build
     class Builder < Thor
-
+      class_option :git, desc:"Use git functionality", type: :boolean, default: true
+      class_option :git_push, desc:"Auto push to git", type: :boolean, default: true
+      class_option :git_release, desc:"Create github release", type: :boolean, default: true
       def perform_build build_info
         setup_failure_reason = setup build_info
         return setup_failure_reason unless setup_failure_reason.nil?
@@ -29,10 +33,49 @@ module Wooget
       def post_build build_info, built_packages
         push_packages(built_packages)
 
-        #todo: check for git release
-        #todo: check for git commit
+        binding.pry
+        if options[:git]
+          _, exit_status = Util.run_cmd "git rev-parse --is-inside-work-tree", options[:path]
+          if exit_status == 0
+
+            commit_and_push build_info if options[:git_push]
+            github_release build_info, built_packages if options[:git_release]
+
+          else
+            Wooget.log.warn "Git requested, but #{options[:path]} doesn't appear to be a git repo"
+          end
+        end
 
         build_info.package_names
+      end
+
+      def commit_and_push build_info
+        `git commit -am "#{build_info.build_name}"`
+        `git tag #{build_info.build_name}"`
+        `git push --tags`
+      end
+
+      def github_release build_info, built_packages
+        #check that we have github token
+        git_url = `git remote get-url origin`.chomp
+        url = git_url.split(":").last
+        repo_name = url.pathmap("%-2d")
+        #extract repo name from git remote
+
+        #create octokit client
+        client = Octokit::Client.new access_token: Wooget.credentials[:github_token]
+
+        release_options = {
+            draft: true,
+            name: build_info.build_name,
+            body: build_info.release_notes
+        }
+
+        release = client.create_release repo_name, build_info.build_name, release_options
+        built_packages.each {|package| client.upload_asset release.url, package }
+
+        #publish release
+        client.update_release release.url, {draft: false}
       end
 
       def build_native_extensions

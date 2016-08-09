@@ -26,7 +26,7 @@ module Wooget
     msg.start_with?("[quiet]") ? "#{msg.sub("[quiet]","")}" :  "[#{severity} #{datetime}] : #{msg}"
   end
 
-  @@credentials = {username: "", password: ""}
+  @@credentials = {username: "", password: "", github_token: ""}
   @@repos = {:default => "legacy"}
 
   def self.log

@@ -3,7 +3,6 @@ require 'fileutils'
 require 'json'
 require 'pathname'
 require 'activesupport/json_encoder'
-
 module Wooget
   class CLI < Thor
     include Thor::Actions
@@ -241,7 +240,7 @@ module Wooget
         end
 
         Wooget.log.debug "Acting as #{Wooget.credentials[:username]}"
-        Wooget.log.debug "Repo is #{Wooget.repo}"
+        Wooget.log.debug "Default repo is #{Wooget.repo}"
       end
     end
 
