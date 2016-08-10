@@ -24,6 +24,7 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency "pry-byebug", "3.1.0"
   gem.add_development_dependency "rake", "10.5.0"
+  gem.add_development_dependency "httpclient", "2.8.1"
 
 
   gem.metadata['allowed_push_host'] = 'http://gem.sdk.wooga.com'
