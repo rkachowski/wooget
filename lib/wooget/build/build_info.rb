@@ -43,7 +43,7 @@ module Wooget
       end
 
       def build_name
-        (File.basename(@project_root)+version).shellescape
+        "#{File.basename(@project_root).downcase}-#{version}".shellescape
       end
 
       def needs_dll_build?

@@ -1,11 +1,11 @@
 require 'octokit'
-require 'pry-byebug'
 module Wooget
   module Build
     class Builder < Thor
-      class_option :git, desc:"Use git functionality", type: :boolean, default: true
-      class_option :git_push, desc:"Auto push to git", type: :boolean, default: true
-      class_option :git_release, desc:"Create github release", type: :boolean, default: true
+      class_option :git, desc: "Use git functionality", type: :boolean, default: true
+      class_option :git_push, desc: "Auto push to git", type: :boolean, default: true
+      class_option :git_release, desc: "Create github release", type: :boolean, default: true
+
       def perform_build build_info
         setup_failure_reason = setup build_info
         return setup_failure_reason unless setup_failure_reason.nil?
@@ -33,7 +33,6 @@ module Wooget
       def post_build build_info, built_packages
         push_packages(built_packages)
 
-        binding.pry
         if options[:git]
           _, exit_status = Util.run_cmd "git rev-parse --is-inside-work-tree", options[:path]
           if exit_status == 0
@@ -50,19 +49,25 @@ module Wooget
       end
 
       def commit_and_push build_info
-        `git commit -am "#{build_info.build_name}"`
-        `git tag #{build_info.build_name}"`
-        `git push --tags`
+        Util.run_cmd "git commit -am '#{build_info.build_name}'"
+        Util.run_cmd "git tag '#{build_info.build_name}'"
+        Util.run_cmd "git push origin --tags"
+        Util.run_cmd "git push origin"
       end
 
       def github_release build_info, built_packages
-        #check that we have github token
-        git_url = `git remote get-url origin`.chomp
-        url = git_url.split(":").last
-        repo_name = url.pathmap("%-2d")
-        #extract repo name from git remote
+        if Wooget.credentials[:github_token].nil? or Wooget.credentials[:github_token].empty?
+          Wooget.log.error "Github Release Error - Couldn't find a value for github_token in the provided config"
+          return
+        end
 
-        #create octokit client
+        #getting the github repo name from the url
+        #there must be a better way, but who cares
+        git_url = `git remote get-url origin`.chomp.chomp ".git"
+        url = git_url.split(":").last
+        repo_name = url.split('/').last(2).join("/")
+
+        Wooget.log.info "Connecting to github with access token.."
         client = Octokit::Client.new access_token: Wooget.credentials[:github_token]
 
         release_options = {
@@ -71,20 +76,21 @@ module Wooget
             body: build_info.release_notes
         }
 
+        Wooget.log.info "Creating release '#{release_options[:name]}' on repo #{repo_name}"
         release = client.create_release repo_name, build_info.build_name, release_options
-        built_packages.each {|package| client.upload_asset release.url, package }
-
-        #publish release
+        Wooget.log.info "Uploading assets..."
+        built_packages.each { |package| client.upload_asset release.url, package, {content_type: "application/zip" }}
+        Wooget.log.info "Publishing release.."
         client.update_release release.url, {draft: false}
       end
 
       def build_native_extensions
-        build_script_path = File.join(options[:path],"build.sh")
+        build_script_path = File.join(options[:path], "build.sh")
         return unless File.exists? build_script_path
 
         Wooget.log.info "External build script found - executing #{build_script_path}..."
-        stdout, status = Util.run_cmd("./#{build_script_path}") {|p| Wooget.no_status_log("build.sh > "+p) }
-        return "Native Build Error: #{stdout.join}" unless status == 0
+        stdout, status = Util.run_cmd("sh #{build_script_path}") { |p| Wooget.no_status_log("build.sh > "+p) }
+        return "Native Build Error: #{stdout}" unless status == 0
 
         nil
       end
@@ -116,7 +122,7 @@ module Wooget
       end
 
       def dll_build build_info
-        slns = Dir[File.join(build_info.project_root,"**/*.sln")]
+        slns = Dir[File.join(build_info.project_root, "**/*.sln")]
         abort "Can't find sln file for building test artifacts" if slns.empty?
 
         slns.each do |sln|
@@ -245,7 +251,7 @@ module Wooget
       def set_release_dependencies build_info
         #remove prerelease references from dependencies and template
         files = build_info.template_files + %w(paket.dependencies)
-        files.map! {|f| f.start_with?("/") ? f : File.join(options[:path],f)}
+        files.map! { |f| f.start_with?("/") ? f : File.join(options[:path], f) }
 
         files.each do |file|
           release_dependencies = []
