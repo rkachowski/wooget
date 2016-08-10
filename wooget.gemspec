@@ -10,6 +10,7 @@ Gem::Specification.new do |gem|
   gem.authors       = ["Donald Hutchison"]
   gem.email         = ["donald.hutchison@wooga.net"]
   gem.homepage      = "https://github.com/wooga/wooget"
+  gem.licenses = "Nonstandard"
 
   gem.files         = Dir["{**/}{.*,*}"].select{ |path| File.file?(path) && path !~ /^[pkg|scrap]/ }
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
@@ -19,8 +20,8 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "thor", "~> 0.19"
   gem.add_runtime_dependency "curb", "~> 0.8"
   gem.add_runtime_dependency "octokit", "~> 4.3"
-  gem.add_runtime_dependency "nokogiri", "~> 1.6.8"
-  gem.add_runtime_dependency "activesupport-json_encoder"
+  gem.add_runtime_dependency "nokogiri", "~> 1.6"
+  gem.add_runtime_dependency "activesupport-json_encoder", '~> 1.1'
 
   gem.add_development_dependency "pry-byebug", "3.1.0"
   gem.add_development_dependency "rake", "10.5.0"

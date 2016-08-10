@@ -5,6 +5,7 @@ module Wooget
       class_option :git, desc: "Use git functionality", type: :boolean, default: true
       class_option :git_push, desc: "Auto push to git", type: :boolean, default: true
       class_option :git_release, desc: "Create github release", type: :boolean, default: true
+      class_option :native, desc: "Invoke native build functionality", type: :boolean, default: true
 
       def perform_build build_info
         setup_failure_reason = setup build_info
@@ -27,7 +28,7 @@ module Wooget
       private
 
       def setup build_info
-        build_native_extensions
+        build_native_extensions if options[:native]
       end
 
       def post_build build_info, built_packages
@@ -90,9 +91,7 @@ module Wooget
 
         Wooget.log.info "External build script found - executing #{build_script_path}..."
         stdout, status = Util.run_cmd("sh #{build_script_path}") { |p| Wooget.no_status_log("build.sh > "+p) }
-        return "Native Build Error: #{stdout}" unless status == 0
-
-        nil
+        raise BuildError "Native Build Error: #{stdout}" unless status == 0
       end
 
       def create_packages(build_info)

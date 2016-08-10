@@ -10,6 +10,8 @@ module Wooget
     option :templates, desc: "Template files you want to build", type: :array, required: true
     option :version, desc: "Version to set packages to", type: :string, required: true
     option :release_notes, desc: "Release notes for packages", type: :string, required: true
+    option :native, desc: "Invoke native build functionality", type: :boolean, default: true
+
     desc "build", "build the package and create .nupkg files"
 
     def build
@@ -27,6 +29,8 @@ module Wooget
 
     option :push, desc: "push to remote repo", type: :boolean, default: true
     option :confirm, desc: "ask for confirmation before pushing", type: :boolean, default: true
+    option :native, desc: "Invoke native build functionality", type: :boolean, default: true
+
     desc "release", "set release deps, build + push"
 
     def release
@@ -45,6 +49,7 @@ module Wooget
 
     option :push, desc: "push to remote repo", type: :boolean, default: true
     option :confirm, desc: "ask for confirmation before pushing", type: :boolean, default: true
+    option :native, desc: "Invoke native build functionality", type: :boolean, default: true
     desc "prerelease", "set prerelease deps, build + push"
 
     def prerelease

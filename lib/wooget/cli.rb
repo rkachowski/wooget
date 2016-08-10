@@ -32,6 +32,7 @@ module Wooget
     option :version, desc:"Version number to prepend to release notes", type: :string, required: true
     option :output, desc: "Dir to place built packages", type: :string, default: "bin"
     option :release_notes, desc: "Release notes to include in the package", type: :string, default: ""
+    option :native, desc: "Invoke native build functionality", type: :boolean, default: true
     def build
       package_release_checks
 
@@ -51,7 +52,8 @@ module Wooget
           version:options[:version],
           release_notes: options[:release_notes],
           templates: templates,
-          path: options[:path]
+          path: options[:path],
+          native: options[:native]
       }
 
       built_packages = invoke "wooget:packager:build", [], build_options
@@ -63,6 +65,8 @@ module Wooget
     option :push, desc: "Should built package be pushed to repo", default: true, type: :boolean
     option :confirm, desc: "Ask for confirmation before pushing", default: true, type: :boolean
     option :output, desc: "Dir to place built packages", type: :string, default: "bin"
+    option :git, desc: "Use git functionality", type: :boolean, default: true
+    option :native, desc: "Invoke native build functionality", type: :boolean, default: true
     desc "release", "release package in current dir"
 
     def release
@@ -77,6 +81,8 @@ module Wooget
     option :push, desc: "Should built package be pushed to repo", default: true, type: :boolean
     option :confirm, desc: "Ask for confirmation before pushing", default: true, type: :boolean
     option :output, desc: "Dir to place built packages", type: :string, default: "bin"
+    option :git, desc: "Use git functionality", type: :boolean, default: true
+    option :native, desc: "Invoke native build functionality", type: :boolean, default: true
     desc "prerelease", "prerelease package in current dir"
 
     def prerelease

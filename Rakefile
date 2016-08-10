@@ -2,6 +2,7 @@
 # Get gemspec info
 require 'octokit'
 require 'json'
+require 'httpclient'
 
 gemspec_file = Dir['*.gemspec'].first
 gemspec = eval File.read(gemspec_file), binding, gemspec_file
@@ -34,8 +35,9 @@ task :release => :gem do
 
   #push to gem server
   puts "pushing to gem.sdk.wooga.com"
-  client = HTTPClient.new "http://gem.sdk.wooga.com"
-  client.post "/upload", {'file'=> File.open(File.join("pkg, name"))}
+  client = HTTPClient.new ""
+  resp =  client.post "http://gem.sdk.wooga.com/upload", {'file'=> File.open(File.join("pkg",name))}
+  puts "response from gem.sdk.wooga.com #{resp.body}"
 
   #create github release
   puts "Preparing github release #{name}"
