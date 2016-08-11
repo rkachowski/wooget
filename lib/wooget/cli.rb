@@ -142,7 +142,7 @@ module Wooget
 
     option :force, desc: "Forces the download and reinstallation of all packages.", aliases: "-f", type: :boolean, default: false
     desc "install", "install packages into this unity project"
-    def install(package=nil)
+    def install package=nil
       load_config
 
       if Util.is_a_unity_project_dir(options[:path]) or Util.is_a_wooget_package_dir(options[:path])
@@ -159,7 +159,7 @@ module Wooget
 
     option :force, desc: "Forces the download and reinstallation of all packages.", aliases: "-f", type: :boolean, default: false
     desc "update", "update packages into this unity project"
-    def update(package=nil)
+    def update package=nil
       load_config
 
       if Util.is_a_unity_project_dir(options[:path]) or Util.is_a_wooget_package_dir(options[:path])
@@ -190,6 +190,26 @@ module Wooget
     def list package_id=nil
       load_config
 
+      if package_id
+        p PackageListFormatter.format_package package_list_by_repo, options[:format], package_id
+      else
+        p PackageListFormatter.format_list package_list_by_repo, options[:format], options[:show_binary]
+      end
+    end
+
+    option :repos, desc: "Which repos to search", type: :array, default: ["main", "universe","legacy"]
+    option :format, desc: "What format to output results", type: :string, enum: ["shell","json"], default: "shell"
+    option :show_binary, desc: "Display binary packages in output", type: :boolean, default: false
+    desc "search", "search packages by a regex"
+    def search pattern
+      load_config
+
+      packages_by_repo = package_list_by_repo pattern
+      p PackageListFormatter.format_list packages_by_repo, options[:format], options[:show_binary]
+    end
+
+    private
+    def package_list_by_repo(match_pattern=nil)
       packages_by_repo = {}
       packages_by_repo_lock = Mutex.new
 
@@ -200,21 +220,13 @@ module Wooget
 
           nuget = Nuget.new
           packages = nuget.invoke "packages", [], repo_url:url
+          packages = packages.select { |pkg| pkg.package_id.downcase.match(match_pattern.downcase) } unless match_pattern.nil?
           packages_by_repo_lock.synchronize { packages_by_repo[repo] = packages}
         end
       end
 
       threads.each {|t| t.join}
-
-      result = ""
-
-      if package_id
-        result = PackageListFormatter.format_package packages_by_repo, options[:format], package_id
-      else
-        result = PackageListFormatter.format_list packages_by_repo, options[:format], options[:show_binary]
-      end
-
-      p result
+			packages_by_repo
     end
 
 
