@@ -6,23 +6,24 @@ module Wooget
       class_option :git_push, desc: "Auto push to git", type: :boolean, default: true
       class_option :git_release, desc: "Create github release", type: :boolean, default: true
       class_option :native, desc: "Invoke native build functionality", type: :boolean, default: true
+      no_commands do
+        def perform_build build_info
+          setup_failure_reason = setup build_info
+          return setup_failure_reason unless setup_failure_reason.nil?
 
-      def perform_build build_info
-        setup_failure_reason = setup build_info
-        return setup_failure_reason unless setup_failure_reason.nil?
+          build_result = create_packages(build_info)
+          return if build_result == :fail
 
-        build_result = create_packages(build_info)
-        return if build_result == :fail
+          built_packages = build_info.package_names.map { |p| File.join(options[:output_dir], p) }
 
-        built_packages = build_info.package_names.map { |p| File.join(options[:output_dir], p) }
+          #dirty hack to prevent unit test versions being pushed
+          if build_info.version == "919.919.919"
+            Wooget.log.warn "Test packages detected! aborting push"
+            return build_info.package_names
+          end
 
-        #dirty hack to prevent unit test versions being pushed
-        if build_info.version == "919.919.919"
-          Wooget.log.warn "Test packages detected! aborting push"
-          return build_info.package_names
+          post_build build_info, built_packages
         end
-
-        post_build build_info, built_packages
       end
 
       private
@@ -165,7 +166,7 @@ module Wooget
     end
 
     class PrereleaseBuilder < Builder
-
+      private
       def setup build_info
         self.options = Thor::CoreExt::HashWithIndifferentAccess.new(options)
         options[:stage] = "Prerelease"
@@ -234,7 +235,7 @@ module Wooget
     end
 
     class ReleaseBuilder < Builder
-
+      private
       def setup build_info
         self.options = Thor::CoreExt::HashWithIndifferentAccess.new(options)
         options[:stage] = "Release"

@@ -47,15 +47,7 @@ module Wooget
       end
 
       def needs_dll_build?
-        #we have a csproj template file
-        return true if @template_files.any? { |t| t.match("csproj.paket.template") }
-
-        #we have different template files that specify both "<PackageName>.Source" and "<PackageName>" ids (legacy)
-        source_pkgs = @package_ids.select { |p| p.end_with? ".Source" }
-        legacy_dll_pkgs = source_pkgs.map { |p| p.chomp(".Source") }
-        return true if @package_ids.any? { |p| legacy_dll_pkgs.include? p }
-
-        false
+        @template_files.map { |f| Util.file_contains? f, "type project" }.any?
       end
 
       private
