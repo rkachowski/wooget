@@ -27,16 +27,10 @@ task :gem do
   FileUtils.mv "#{gemspec.name}-#{gemspec.version}.gem", 'pkg'
 end
 
-desc "Build and push to sdk.wooga.com + create github release"
-task :release => :gem do
+desc "create github release"
+task :github_release => :gem do
   name = "#{gemspec.name}-#{gemspec.version}.gem"
   access_token = JSON.parse(File.open(File.expand_path("~/.wooget")).read)["credentials"]["github_token"]
-
-  #push to gem server
-  puts "pushing to gem.sdk.wooga.com"
-  client = HTTPClient.new ""
-  resp =  client.post "http://gem.sdk.wooga.com/upload", {'file'=> File.open(File.join("pkg",name))}
-  puts "response from gem.sdk.wooga.com #{resp.body}"
 
   #create github release
   puts "Preparing github release #{name}"
@@ -65,9 +59,16 @@ task :install => :gem do
  sh %{gem install --no-document pkg/#{gemspec.name}-#{gemspec.version}.gem}
 end
 
+desc "push to gem.sdk.wooga.com"
 task :inabox => :gem do
-  sh %{gem inabox pkg/#{gemspec.name}-#{gemspec.version}.gem}
+  client = HTTPClient.new ""
+  name = "#{gemspec.name}-#{gemspec.version}.gem"
+  resp =  client.post "http://gem.sdk.wooga.com/upload", {'file'=> File.open(File.join("pkg",name))}
+  puts "response from gem.sdk.wooga.com #{resp.body}"
 end
+
+desc "build, push to gem server and create github release"
+task :release =>[:gem, :inabox, :github_release]
 
 # # #
 # Start an IRB session with the gem loaded
