@@ -68,7 +68,7 @@ module Wooget
     end
 
     def self.pack options
-      pack_cmd = "#{env_vars} mono #{@@paket_path} pack output #{options[:output]} version #{options[:version]} releaseNotes \"#{options[:release_notes]}\" templatefile #{options[:template]}"
+      pack_cmd = "#{env_vars} mono #{@@paket_path} pack output #{options[:output]} version #{options[:version]} releaseNotes \"#{options[:release_notes]}\""
       Util.run_cmd(pack_cmd, options[:path] || Dir.pwd) { |log| Wooget.no_status_log log }
     end
 

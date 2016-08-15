@@ -96,26 +96,21 @@ module Wooget
       end
 
       def create_packages(build_info)
-        #if we find a csproj.paket.template file then we need to build a binary release
-
         dll_build build_info if build_info.needs_dll_build?
 
         update_metadata build_info.version
 
-        build_info.template_files.each do |t|
-          pack_options = {
-              output: options[:output_dir],
-              version: build_info.version,
-              template: t,
-              release_notes: build_info.release_notes.shellescape,
-              path: build_info.project_root
-          }
+        pack_options = {
+            output: options[:output_dir],
+            version: build_info.version,
+            release_notes: build_info.release_notes.shellescape,
+            path: build_info.project_root
+        }
 
-          stdout, status = Paket.pack pack_options
-          unless status == 0
-            Wooget.log.error "Pack error: #{stdout.join}"
-            return :fail
-          end
+        stdout, status = Paket.pack pack_options
+        unless status == 0
+          Wooget.log.error "Pack error: #{stdout.join}"
+          return :fail
         end
 
         nil
