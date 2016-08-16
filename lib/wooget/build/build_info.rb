@@ -47,7 +47,7 @@ module Wooget
       end
 
       def needs_dll_build?
-        @template_files.map { |f| Util.file_contains? f, "type project" }.any?
+        @template_files.map { |f| Util.file_contains? File.join(project_root, f), "type project" }.any?
       end
 
       private

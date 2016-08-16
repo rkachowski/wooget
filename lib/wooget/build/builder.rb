@@ -98,7 +98,7 @@ module Wooget
       def create_packages(build_info)
         dll_build build_info if build_info.needs_dll_build?
 
-        update_metadata build_info.version
+        update_metadata build_info
 
         pack_options = {
             output: options[:output_dir],
@@ -143,14 +143,22 @@ module Wooget
         end
       end
 
-      def update_metadata new_version
-        meta_files = Dir.glob(File.join(options[:path], "**/*_meta.cs"))
+      def update_metadata build_info
+
+        meta_files = Dir.glob(File.join(options[:path],"src", "**/*_meta.cs"))
+
+        build_info.package_ids.each do |id|
+          meta_files << Dir.glob(File.join(options[:path],"src", "**/*#{id.split(".").join("_")}*"))
+        end
+
+        meta_files.flatten!
+        meta_files.uniq!
 
         meta_files.each do |file|
           file_contents = File.open(file).each_line.to_a
           file_contents.map! do |line|
             if line =~ /public static readonly string version/
-              "    public static readonly string version = \"#{new_version}\";\n"
+              "    public static readonly string version = \"#{build_info.new_version}\";\n"
             else
               line
             end
