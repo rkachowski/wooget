@@ -158,7 +158,7 @@ module Wooget
           file_contents = File.open(file).each_line.to_a
           file_contents.map! do |line|
             if line =~ /public static readonly string version/
-              "    public static readonly string version = \"#{build_info.new_version}\";\n"
+              "    public static readonly string version = \"#{build_info.version}\";\n"
             else
               line
             end
