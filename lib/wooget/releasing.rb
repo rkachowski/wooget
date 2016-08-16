@@ -103,7 +103,7 @@ module Wooget
         break if line.strip.empty? and notes.length > 0
 
         #include the line unless it's a version title
-        notes << line unless line.match /#*\s*(\d+\.\d+\.\d+)-?(\w*)/
+        notes << line unless line.match /^#/
       end
 
       notes.join
