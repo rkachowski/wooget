@@ -32,10 +32,10 @@ module Wooget
       end
     end
 
-    def self.update options={}
+    def self.update package=nil, options={}
       options[:path] ||= Dir.pwd
 
-      commands = ["#{env_vars} mono #{@@paket_path} update #{"--force" if options[:force]}"]
+      commands = ["#{env_vars} mono #{@@paket_path} update #{"nuget #{package}" if package} #{"--force" if options[:force]}"]
       commands << "#{env_vars} mono #{@@unity3d_path} install" if Util.is_a_unity_project_dir(options[:path])
 
       commands.each do |cmd|

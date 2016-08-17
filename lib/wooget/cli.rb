@@ -163,7 +163,7 @@ module Wooget
       load_config
 
       if Util.is_a_unity_project_dir(options[:path]) or Util.is_a_wooget_package_dir(options[:path])
-        Paket.update options
+        Paket.update package, options
       else
         abort "Project not found at #{options[:path]}"
       end
