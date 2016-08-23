@@ -7,7 +7,7 @@
     <ProjectGuid>{<%= options[:tests][:guid] %>}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Wooget</RootNamespace>
+    <RootNamespace><%= options[:name].split(".").first %></RootNamespace>
     <AssemblyName><%= options[:name] %>.Tests</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

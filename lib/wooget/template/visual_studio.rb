@@ -1,15 +1,16 @@
 module Wooget
   module Templates
-    class VisualStudio  < Thor
+    class VisualStudio < Thor
       attr_accessor :options
       include Thor::Actions
       add_runtime_options!
 
       def self.source_root
-        File.join(File.dirname(__FILE__),"files")
+        File.join(File.dirname(__FILE__), "files")
       end
 
       desc "create_project options", "create a wooget package tree"
+
       def create_project options={}
         raise "name not provided" unless options[:name]
 
@@ -37,7 +38,7 @@ module Wooget
 
           #referencing src project from test project
           @options[:tests][:projects]||= []
-          src_project = {:guid => @options[:src][:guid], :name => @options[:src][:name], :relative_location => "../src/#{options[:name]}/#{options[:name]}.csproj" }
+          src_project = {:guid => @options[:src][:guid], :name => @options[:src][:name], :relative_location => "../src/#{options[:name]}/#{options[:name]}.csproj"}
           @options[:tests][:projects] << src_project
 
           template("test_file.erb", "#{options[:name]}/tests/DummyTest.cs")
@@ -47,6 +48,8 @@ module Wooget
         end
 
         template("sln.erb", "#{options[:name]}/src/#{options[:name]}.sln")
+        create_file("#{options[:name]}/src/paket.references", "Wooga.Unity.DLLs")
+
       end
     end
   end
