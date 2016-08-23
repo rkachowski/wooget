@@ -45,3 +45,33 @@ Options:
       [--path=PATH]                # Path to the project you want to install things into
                                    # Default: /Users/donaldhutchison/workspace/wdk-wooget
 ```
+
+## Config
+
+### Default config
+On first usage a config file will be created in your home directory under `~/.wooget`. This contains all the information about which repostiories and credentials to use when uploading / downloading packages. 
+
+### Github
+You can also use the tool to create github releases for your packages, which will trigger sdk-bot messages (as well as provide a backup location for packages should artifactory go down). To use this you need to generate and add a github oauth token to the config file.
+
+Follow [the official github instructions on how to generate a token](https://help.github.com/articles/creating-an-access-token-for-command-line-use/) and add it to the config file under the `credentials` key, with the name `github_token`.
+
+Ultimately, the config should look like
+
+```
+{
+    "credentials": 
+    {
+        "username": "sdk-universe-user",
+        "password": "the password",
+        "github_token":"your token"
+    },
+    "repos":
+    {
+        "universe":"https://wooga.artifactoryonline.com/wooga/api/nuget/sdk-universe",
+        "main":"https://wooga.artifactoryonline.com/wooga/api/nuget/sdk-main",
+        "legacy":"https://wooga.artifactoryonline.com/wooga/api/nuget/nuget-private",
+        "default":"https://wooga.artifactoryonline.com/wooga/api/nuget/sdk-main"
+    }
+}
+```
