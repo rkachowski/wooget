@@ -28,6 +28,7 @@ module Wooget
         template("assemblyinfo.erb", "#{options[:name]}/src/#{options[:name]}/Properties/AssemblyInfo.cs")
         template("class.erb", "#{options[:name]}/src/#{options[:name]}/DummyClass.cs")
         template("csproj.erb", "#{options[:name]}/src/#{options[:name]}/#{options[:name]}.csproj")
+        create_file("#{options[:name]}/src/#{options[:name]}/#{options[:name]}.csproj.paket.references", "Wooga.Unity.DLLs")
         template("paket.binary.template.erb", "#{options[:name]}/src/#{options[:name]}/#{options[:name]}.csproj.paket.template")
 
         if @options[:tests]
@@ -48,7 +49,6 @@ module Wooget
         end
 
         template("sln.erb", "#{options[:name]}/src/#{options[:name]}.sln")
-        create_file("#{options[:name]}/src/paket.references", "Wooga.Unity.DLLs")
 
       end
     end
