@@ -3,7 +3,7 @@ Encoding.default_external = Encoding::UTF_8
 Encoding.default_internal = Encoding::UTF_8
 
 module Wooget
-  VERSION = "2.0.34".freeze
+  VERSION = "2.0.35".freeze
 
   POST_INSTALL= '
                                 _   _
