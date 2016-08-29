@@ -23,7 +23,7 @@ module Wooget
     #runs a command in a separate process and working dir, takes a block which is yielded on every line of stdout
     #returns [[stdout], exit_status]
     def self.run_cmd cmd, path=Dir.pwd
-      Wooget.log.debug "Running `#{cmd}`"
+      Wooget.log.debug "Running `#{cmd}` in path #{File.expand_path(path)}"
 
       cmd_output = []
       shutdown = -> {Wooget.log.error "Trying to shutdown child before pid recieved"}
