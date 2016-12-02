@@ -183,7 +183,7 @@ module Wooget
       end
     end
 
-    option :repos, desc: "Which repos to list", type: :array, default: ["main", "universe","legacy"]
+    option :repos, desc: "Which repos to list", type: :array, default: ["main", "universe","legacy","public"]
     option :format, desc: "What format to output results", type: :string, enum: ["shell","json"], default: "shell"
     option :show_binary, desc: "Display binary packages in output", type: :boolean, default: false
     desc "list", "list available packages + version"

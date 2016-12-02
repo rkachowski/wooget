@@ -9,7 +9,15 @@ module Wooget
 
     def packages
       Wooget.log.info "Fetching package list for #{options[:repo_url]} ..."
-      c = Curl::Easy.new(options[:repo_url] + '/Search?$orderby=Id&$filter=IsLatestVersion&searchterm=')
+
+      url = ""
+      if options[:repo_url] == Wooget.repos[:public]
+        url = "https://packages.nuget.org/api/v2/Search?searchTerm=%27wooget%27"
+      else
+        url = options[:repo_url] + '/Search?$orderby=Id&$filter=IsLatestVersion&searchterm='
+      end
+
+      c = Curl::Easy.new(url)
       c.username = Wooget.credentials[:username]
       c.password = Wooget.credentials[:password]
 
