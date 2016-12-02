@@ -1,0 +1,13 @@
+{
+  "credentials": {
+    "username": "",
+    "password": "",
+    "github_token":"",
+    "nuget":""
+  },
+  "repos":
+  {
+    "public":"https://www.nuget.org/api/v2/package",
+    "default":"https://www.nuget.org/api/v2/package"
+  }
+}
