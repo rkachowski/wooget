@@ -1,3 +1,4 @@
+require 'pry-byebug'
 require 'octokit'
 module Wooget
   module Build
@@ -136,7 +137,14 @@ module Wooget
               next unless yes?("Release #{p} to #{Wooget.repo}?")
             end
 
-            auth = "#{Wooget.credentials[:username]}:#{Wooget.credentials[:password]}"
+            auth = ""
+            if Wooget.repo == Wooget.repos[:public]
+              auth = Wooget.credentials[:nuget]
+            else
+              auth = "#{Wooget.credentials[:username]}:#{Wooget.credentials[:password]}"
+            end
+
+            binding.pry
 
             Paket.push auth, Wooget.repo, p
           end
