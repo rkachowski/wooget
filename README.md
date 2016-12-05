@@ -13,7 +13,7 @@ Wooget 2.0 - a cli to manage all sdk package tasks + bonus content.
 * Releases new packages for you
 * Does everything, just for you
 
-> Checkout [the wiki](https://github.com/wooga/wdk-wooget/wiki/) for more information
+> Checkout [the wiki](https://github.com/wooga/wooget/wiki/) for more information
 
 ## Setup
 
@@ -25,7 +25,6 @@ gem install wooga_wooget
 ## Usage
 
 ```
-$ wooget help
 Commands:
   wooget bootstrap                # setup environment / project for wooget usage
   wooget build --version=VERSION  # build the packages in the current dir
@@ -45,6 +44,7 @@ Options:
   -v, [--verbose], [--no-verbose]  # Spit out tons of logging info
   -q, [--quiet], [--no-quiet]      # Suppress stdout
       [--path=PATH]                # Path to the project you want to install things into
-                                   # Default: /Users/donaldhutchison/workspace/wdk-wooget
+                                   # Default: /Users/donaldhutchison/workspace/wooget
+
 ```
 

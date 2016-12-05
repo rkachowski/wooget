@@ -1,4 +1,3 @@
-require 'pry-byebug'
 require 'octokit'
 module Wooget
   module Build
@@ -143,8 +142,6 @@ module Wooget
             else
               auth = "#{Wooget.credentials[:username]}:#{Wooget.credentials[:password]}"
             end
-
-            binding.pry
 
             Paket.push auth, Wooget.repo, p
           end
