@@ -59,6 +59,7 @@ task :install => :gem do
  sh %{gem install --no-document pkg/#{gemspec.name}-#{gemspec.version}.gem}
 end
 
+#internal only
 desc "push to gem.sdk.wooga.com"
 task :inabox => :gem do
   client = HTTPClient.new ""

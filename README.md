@@ -1,21 +1,17 @@
 # wooget 
 
-Wooget 2.0 - a cli to manage all sdk package tasks + bonus content.
+A cli which allows [Unity3d](http://www.unity3d.com) projects to work with NuGet packages.
 
 ## Features
 
-* Sets up your unity project to work with wooget packages
-* Installs your packages
-* Updates your packages
-* Lists latest versions of everything available
-* Creates new packages for you
-* Builds new packages for you
-* Releases new packages for you
-* Does everything, just for you
+* Configures Unity3d to work with NuGet
+* Install and update packages
+* List and search available packages
+* Create, Build, Test and Release new NuGet packages
 
 > Checkout [the wiki](https://github.com/wooga/wooget/wiki/) for more information
 
-## Setup
+## Install
 
 ```ruby
 gem sources -a http://gem.sdk.wooga.com/
