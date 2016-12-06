@@ -29,7 +29,7 @@ end
 
 desc "create github release"
 task :github_release => :gem do
-  name = "#{gemspec.name}-#{gemspec.version}.gem"
+  name = "#{gemspec.name}-#{gemspec.version}"
   access_token = JSON.parse(File.open(File.expand_path("~/.wooget")).read)["credentials"]["github_token"]
 
   #create github release
@@ -47,8 +47,8 @@ task :github_release => :gem do
   }
 
   release = client.create_release repo_name, name, release_options
-  puts "uploading assets"
-  client.upload_asset release.url, "pkg/#{name}", {content_type: "application/x-gzip" }
+  #puts "uploading assets"
+  #client.upload_asset release.url, "pkg/#{name}", {content_type: "application/x-gzip" }
   puts "publishing.."
   client.update_release release.url, {draft: false}
   puts "done"
