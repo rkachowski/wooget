@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "thor", "~> 0.19"
   gem.add_runtime_dependency "curb", "~> 0.8"
   gem.add_runtime_dependency "octokit", "~> 4.3"
-  gem.add_runtime_dependency "nokogiri", "~> 1.6"
+  gem.add_runtime_dependency "oga", "~> 2.7"
   gem.add_runtime_dependency "activesupport-json_encoder", '~> 1.1'
 
   gem.add_development_dependency "pry-byebug", "3.1.0"

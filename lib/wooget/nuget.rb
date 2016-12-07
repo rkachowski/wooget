@@ -1,5 +1,5 @@
 require 'ostruct'
-require 'nokogiri'
+require 'oga'
 require 'curb'
 
 module Wooget
@@ -31,16 +31,15 @@ module Wooget
         file = File.open(file)
       end
 
-      doc = Nokogiri::XML(file)
-      doc.remove_namespaces!
+      doc = Oga.parse_xml(file)
 
-      package_xml = doc.css "entry"
-      package_xml.map do |px|
-        id = px.css("title").text()
-        url = px.css("id").text()
-        props_xml = px.css("properties")
-        properties = props_xml.children.inject({}) do |hsh, node|
-          hsh[node.name] = node.text()
+      entries = doc.css "entry"
+      entries.map do |e|
+        id = e.at_css("title").text()
+        url = e.at_css("id").text()
+        props_xml = e.at_css("properties").children
+        properties = props_xml.inject({}) do |hsh, node|
+          hsh[node.name] = node.text() if node.respond_to? :name
           hsh
         end
 
