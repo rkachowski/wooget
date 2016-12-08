@@ -18,7 +18,7 @@ gem sources -a http://gem.sdk.wooga.com/
 gem install wooga_wooget
 ```
 
-> If you are working at wooga, you will need to copy the internal repo configuration from [[https://github.com/wooga/wdk-docs/wiki]] to ~/.wooget
+> If you are working at wooga, you will need to copy the internal repo configuration from https://github.com/wooga/wdk-docs/wiki to ~/.wooget
 
 ## Usage
 
